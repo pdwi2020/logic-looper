@@ -1,4 +1,6 @@
-import { PrismaClient } from '@prisma/client';
+// import { PrismaClient } from '@prisma/client';
+// Prisma import commented out until auth is implemented.
+// Uncomment and use: import { PrismaClient } from '@prisma/client/index.js';
 
 interface DailyScoreEntry {
   date: string;
@@ -31,13 +33,14 @@ interface VercelResponseLike {
   end(): void;
 }
 
-const prisma = new PrismaClient();
+// const prisma = new PrismaClient();
 
 const ALLOWED_ORIGINS = new Set([
   'http://localhost:3000',
   'http://localhost:5173',
   'http://127.0.0.1:3000',
   'http://127.0.0.1:5173',
+  'https://logic-looper-ruby.vercel.app',
 ]);
 
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
@@ -159,8 +162,9 @@ export default async function handler(
   // TODO: Add request-level rate limiting before enabling persistent DB writes.
   // DB persistence is intentionally disabled until auth is implemented and userId is trusted.
   // This keeps the endpoint validation-only for now.
-  void prisma;
   /*
+  // Uncomment when auth is implemented:
+  // const prisma = new PrismaClient();
   const userId = session.user.id;
   await Promise.all(
     body.entries.map((entry) =>
