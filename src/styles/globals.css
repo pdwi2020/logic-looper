@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: theme('colors.brand-dark');
+  --color-blue: theme('colors.brand-blue');
+  --color-purple: theme('colors.brand-purple');
+  --color-deep-purple: theme('colors.brand-deep-purple');
+  --color-accent: theme('colors.brand-accent');
+  --color-white: theme('colors.brand-white');
+  --color-light-gray: theme('colors.brand-light-gray');
+  --color-dark-gray: theme('colors.brand-dark-gray');
+  --color-light-blue: theme('colors.brand-light-blue');
+  --color-light-sky: theme('colors.brand-light-sky');
+  --color-light-periwinkle: theme('colors.brand-light-periwinkle');
+  --color-light-steel: theme('colors.brand-light-steel');
+  --color-light-lavender: theme('colors.brand-light-lavender');
+  --font-primary: theme('fontFamily.sans');
+  --font-secondary: theme('fontFamily.body');
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@layer base {
+  body {
+    @apply m-0 min-h-screen bg-brand-light-gray text-brand-dark antialiased font-body;
+    font-family: var(--font-secondary);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: var(--color-primary);
+    font-family: var(--font-primary);
+  }
+}

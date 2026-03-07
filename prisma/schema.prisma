@@ -1,0 +1,41 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id         String      @id @default(uuid())
+  email      String      @unique
+  name       String?
+  image      String?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  dailyScore DailyScore[]
+  userStats  UserStats?
+}
+
+model DailyScore {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date       String
+  score      Int
+  timeTaken  Int
+  difficulty Int      @default(1)
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, date])
+}
+
+model UserStats {
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  currentStreak Int      @default(0)
+  longestStreak Int      @default(0)
+  totalSolved   Int      @default(0)
+  updatedAt     DateTime @updatedAt
+}
