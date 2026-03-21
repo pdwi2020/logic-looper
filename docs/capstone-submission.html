@@ -393,10 +393,11 @@
 
       <main>
         <p class="lead">
-          Logic Looper is designed as a polished, deterministic daily logic game
-          with reliable offline gameplay, persistent local progress, and a sync
-          architecture that keeps the user experience responsive even under
-          unstable network conditions.
+          Logic Looper is a polished, deterministic daily logic game built
+          mobile-first with offline-first architecture. It delivers one puzzle
+          per day across three puzzle families, a full progression system,
+          dark mode, keyboard-accelerated play, and a profile experience that
+          responds to the player&apos;s streak — all without requiring an account.
         </p>
 
         <section class="section-card">
@@ -501,30 +502,36 @@
             <div class="mini-panel">
               <h3>Core Product Surface</h3>
               <ul class="list">
-                <li>5 pages: Home, Puzzle Arena, Profile, Leaderboard, Settings</li>
-                <li>3 puzzle types: Number Matrix, Sequence Solver, and Equation Puzzle</li>
+                <li>5 pages: Home, Puzzle Arena, Profile, Leaderboard, Settings — all reachable from header nav and footer</li>
+                <li>3 puzzle types: Number Matrix, Sequence Solver, Equation Puzzle — rotating daily via 3-day modular cycle</li>
                 <li>
-                  3 difficulty levels each (Easy, Medium, Hard), scaling
-                  dynamically every 122 days
+                  3 difficulty levels each, scaling dynamically every 122 days
+                  (difficulty multiplier applied to scoring)
                 </li>
-                <li>Responsive UI with mobile hamburger navigation</li>
-                <li>Smooth animations via Framer Motion</li>
+                <li>Mobile-first layout: sticky timer, full-width buttons, horizontal sequence scroll</li>
+                <li>Dark mode toggle in Settings — persisted to localStorage, applied on startup with no flash</li>
+                <li>Smooth animations throughout via Framer Motion</li>
               </ul>
             </div>
             <div class="mini-panel">
               <h3>Retention and Progression</h3>
               <ul class="list">
                 <li>
-                  Streak tracking with current streak, longest streak, and an
-                  &quot;On Fire&quot; state at 3+ consecutive days
+                  Streak tracking with current streak, longest streak, and a
+                  5-tier motivational banner on the Profile page
+                  (≥30 / ≥7 / ≥3 / 1 / 0 days)
                 </li>
                 <li>
                   GitHub-style 52-week activity heatmap with 5 intensity levels,
                   hover tooltips, and year selector
                 </li>
                 <li>
-                  4 achievement badges: Streak Week, Streak Month, Century, and
-                  Perfect Month
+                  4 achievement badges: Streak Week, Streak Month, Century, Perfect
+                  Month — with "Next badge to unlock" contextual hint
+                </li>
+                <li>
+                  Leaderboard includes a dynamic "You" row derived from IndexedDB —
+                  ranked by best score with computed streak and level
                 </li>
               </ul>
             </div>
@@ -534,32 +541,51 @@
 
           <div class="split-grid">
             <div class="mini-panel">
-              <h3>Architecture and State</h3>
+              <h3>Puzzle UX Polish</h3>
               <ul class="list">
                 <li>
-                  Offline-first architecture with IndexedDB as the primary data
-                  store and full play without internet
+                  Enter key submits answer across all three puzzle types (Grid, Sequence, Equation inputs)
+                </li>
+                <li>Answer input auto-focused on puzzle load — no tap required</li>
+                <li>
+                  Progressive 3-level hints for Number Matrix (−10 pts each);
+                  1-level hint for other types
                 </li>
                 <li>
-                  Smart batch sync every 5 completions, executed only when the
-                  device is online
+                  "Give Up" button appears after 3 wrong attempts — reveals the
+                  correct answer and saves an attempted-but-unsolved record
                 </li>
                 <li>
-                  Redux Toolkit global state with typed slices for maintainable
-                  data flow
+                  Puzzle-type–specific win messages: distinct confirmation text
+                  for matrix, sequence, and equation solves
                 </li>
+                <li>
+                  Timer urgency: amber color at &gt;60 s, red at &gt;90 s;
+                  pulsing scale animation throughout
+                </li>
+                <li>Share Score button copies formatted result to clipboard</li>
               </ul>
             </div>
             <div class="mini-panel">
-              <h3>Platform Readiness</h3>
+              <h3>Architecture and Platform</h3>
               <ul class="list">
                 <li>
-                  PWA-ready architecture with service worker, web app manifest,
-                  and installability on mobile and desktop
+                  Offline-first architecture with IndexedDB as the primary data
+                  store; full play loop works without internet
                 </li>
                 <li>
-                  Stable user experience in both connected and disconnected
-                  scenarios
+                  Smart batch sync every 5 completions, only when device is online
+                </li>
+                <li>
+                  Redux Toolkit global state with typed slices and sync middleware
+                </li>
+                <li>
+                  PWA-ready: service worker, web app manifest, installable on
+                  mobile and desktop
+                </li>
+                <li>
+                  Data export (JSON download) and two-step confirmed data clear
+                  in Settings — both wired to real IndexedDB operations
                 </li>
               </ul>
             </div>
@@ -607,9 +633,9 @@
             <div class="tech-row">
               <span class="tech-label">Testing</span>
               <div class="chip-wrap">
-                <span class="chip">Vitest 3.2</span>
+                <span class="chip">Vitest 4.0</span>
                 <span class="chip">@testing-library/react 16</span>
-                <span class="chip">171 Tests</span>
+                <span class="chip">183 Tests</span>
                 <span class="chip">96%+ Coverage</span>
               </div>
             </div>
@@ -642,27 +668,43 @@
 
           <ul class="list">
             <li>
-              Complete puzzle engine covering seed generation, LCG RNG, all three
-              puzzle types, and answer validation
+              Complete puzzle engine: seed generation (HMAC-SHA256), LCG RNG,
+              three puzzle types with 3-day rotation, and answer validation
             </li>
             <li>
               Full database layer with Prisma schema, PostgreSQL on Neon, and a
-              sync API endpoint
+              sync API endpoint at <code>/api/sync/daily-scores</code>
             </li>
             <li>
               All core services implemented: syncService, profileService,
               leaderboardService, and achievementService
             </li>
             <li>
-              Redux store completed with 5 slices: puzzle, profile,
-              leaderboard, achievements, and settings, plus sync middleware
+              Redux store with typed slices and sync middleware (batch every 5
+              completions, online-only)
             </li>
-            <li>19 React components delivered across 5 pages</li>
+            <li>22+ React components across 5 fully navigable pages</li>
             <li>PWA setup complete with service worker, manifest, and icons</li>
             <li>
-              171 Vitest tests completed with 96%+ statement and branch
-              coverage
+              183 Vitest unit tests with 96%+ statement and branch coverage
             </li>
+            <li>
+              Dark mode: Tailwind <code>darkMode: 'class'</code> + CSS overrides
+              + localStorage persistence with no-flash startup
+            </li>
+            <li>
+              Leaderboard "You" row: real score, streak, and level derived from
+              IndexedDB, sorted alongside mock players
+            </li>
+            <li>
+              Profile motivational banner: 5-tier message keyed to streak
+              (≥30 / ≥7 / ≥3 / 1 / 0) + next-badge contextual hint
+            </li>
+            <li>
+              Puzzle UX polish: Enter-key submit, autoFocus, Give Up after 3
+              wrong attempts, type-specific win messages, timer urgency colors
+            </li>
+            <li>Settings fully functional: Export Data (JSON) + two-step Clear Local Data</li>
             <li>
               Production deployment on Vercel:
               <a href="https://logic-looper-ruby.vercel.app">
@@ -727,20 +769,26 @@
 
           <ul class="list">
             <li>
-              Auth-gated database persistence is still needed, since the
-              current primary persistence layer is client-side IndexedDB and DB
-              sync requires authentication
+              Auth-gated database persistence is still needed — the primary
+              persistence layer is client-side IndexedDB, and server sync
+              requires authentication to associate scores with a user identity
             </li>
             <li>
-              A third puzzle type (Equation Puzzle) was added post-submission;
-              further variety (word puzzles, logic grids) remains for future work
+              The Leaderboard "You" row is derived from local data; real global
+              rankings require authenticated accounts and a backend ranking query
             </li>
             <li>
-              iOS PWA install prompting remains limited because iOS Safari has
-              constrained PWA install support
+              iOS PWA install prompting remains limited due to iOS Safari&apos;s
+              constrained PWA install surface
             </li>
-            <li>Real leaderboard data should replace the current seeded mock rankings</li>
-            <li>Server-side puzzle validation should be added to reduce cheating risk</li>
+            <li>
+              Server-side puzzle answer validation should be added to prevent
+              client-side score manipulation
+            </li>
+            <li>
+              Further puzzle variety (word puzzles, logic grids) would increase
+              long-term engagement beyond the current 3-type rotation
+            </li>
           </ul>
         </section>
 
@@ -760,15 +808,26 @@
           <ul class="list">
             <li>
               Add daily push notifications via the Web Push API to remind users
-              about their streak
+              about their streak before it resets at midnight
             </li>
             <li>
-              Implement social sharing cards with Open Graph metadata so puzzle
-              scores can be shared on Twitter and LinkedIn
+              Implement Open Graph metadata for rich social sharing cards — score
+              shares would embed a preview image on Twitter and LinkedIn
             </li>
-            <li>Add a dark mode toggle with system preference detection</li>
-            <li>Consider WebSocket support for real-time leaderboard updates</li>
-            <li>Add keyboard shortcuts for power users</li>
+            <li>
+              Add system-preference detection (<code>prefers-color-scheme</code>)
+              as the default dark mode trigger, with the Settings toggle as an
+              explicit override
+            </li>
+            <li>
+              WebSocket support for real-time leaderboard score updates once
+              authentication is in place
+            </li>
+            <li>
+              Expand keyboard shortcuts beyond Enter-to-submit: Tab to cycle
+              between hint and submit, H for hint, and number keys for quick
+              answer entry on desktop
+            </li>
           </ul>
         </section>
 
@@ -814,14 +873,35 @@
               support, so <strong>fake-indexeddb</strong> was required for the
               database-layer test suite.
             </li>
+            <li>
+              <strong>Dark mode with Tailwind custom colors:</strong> Tailwind
+              resolves brand color tokens to hardcoded hex at build time, so
+              CSS-variable overrides alone cannot rewrite utility classes at
+              runtime. The solution was a targeted <code>.dark</code> CSS scope
+              in <code>globals.css</code> that overrides specific surface
+              classes with <code>!important</code>, combined with
+              <code>darkMode: 'class'</code> in <code>tailwind.config.ts</code>
+              and localStorage persistence to prevent a white-flash on reload.
+            </li>
+            <li>
+              <strong>Leaderboard dynamic "You" row:</strong> Inserting the
+              user&apos;s local row into a sorted table required reading IndexedDB
+              on mount, computing best score and streak server-side, deriving
+              a progression level from total-solved count, and re-sorting the
+              combined array before render — all without a loading spinner
+              noticeable to the user.
+            </li>
           </ul>
         </section>
       </main>
 
       <footer class="footer">
         <strong>Submitted by:</strong> paritoshdwi2019 |
-        <strong>Date:</strong> March 21, 2026 |
-        <strong>Live:</strong> https://logic-looper-ruby.vercel.app
+        <strong>Date:</strong> March 25, 2026 |
+        <strong>Live:</strong>
+        <a href="https://logic-looper-ruby.vercel.app">https://logic-looper-ruby.vercel.app</a> |
+        <strong>GitHub:</strong>
+        <a href="https://github.com/pdwi2020/logic-looper">github.com/pdwi2020/logic-looper</a>
       </footer>
     </div>
   </body>
