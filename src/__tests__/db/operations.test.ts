@@ -26,7 +26,7 @@ const createMockAchievement = (
   overrides: Partial<Achievement> = {},
 ): Achievement => ({
   id: 'streak-7',
-  name: '7 Day Streak',
+  label: '7 Day Streak',
   description: 'Complete one puzzle for seven consecutive days.',
   unlockedAt: '2026-03-06T09:00:00.000Z',
   type: 'streak',
@@ -170,7 +170,7 @@ describe('db/operations', () => {
     const firstAchievement = createMockAchievement();
     const secondAchievement = createMockAchievement({
       id: 'milestone-50',
-      name: 'Fifty Solved',
+      label: 'Fifty Solved',
       description: 'Solve fifty puzzles total.',
       unlockedAt: null,
       type: 'milestone',

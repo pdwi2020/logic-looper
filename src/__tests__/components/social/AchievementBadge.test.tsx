@@ -5,19 +5,19 @@ import { AchievementBadge } from '@/components/social/AchievementBadge';
 
 const makeAchievement = (type: Achievement['type']): Achievement => ({
   id: `achievement-${type}`,
-  name: `${type} achievement`,
+  label: `${type} achievement`,
   description: `${type} achievement description`,
   unlockedAt: '2026-03-06T00:00:00.000Z',
   type,
 });
 
 describe('components/social/AchievementBadge', () => {
-  it('renders achievement name', () => {
+  it('renders achievement label', () => {
     const achievement = makeAchievement('streak');
 
     render(<AchievementBadge achievement={achievement} isNew={false} />);
 
-    expect(screen.getByText(achievement.name)).toBeInTheDocument();
+    expect(screen.getByText(achievement.label)).toBeInTheDocument();
   });
 
   it('renders achievement description', () => {

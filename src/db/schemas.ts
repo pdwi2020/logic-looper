@@ -9,7 +9,7 @@ export interface DailyActivity {
 
 export interface Achievement {
   id: string;
-  name: string;
+  label: string;
   description: string;
   unlockedAt: string | null;
   type: 'streak' | 'milestone' | 'perfect';

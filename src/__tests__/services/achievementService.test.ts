@@ -40,7 +40,7 @@ describe('services/achievementService', () => {
     expect(unlocked).toHaveLength(1);
     expect(unlocked[0]).toMatchObject({
       id: 'streak-7',
-      name: '7-Day Streak',
+      label: '7-Day Streak',
       type: 'streak',
     });
     expectISOUnlockedAt(unlocked[0]);

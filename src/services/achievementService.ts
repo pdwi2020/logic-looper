@@ -4,31 +4,31 @@ import type { Achievement, DailyActivity } from '@/db/schemas';
 
 type AchievementDefinition = Pick<
   Achievement,
-  'id' | 'name' | 'description' | 'type'
+  'id' | 'label' | 'description' | 'type'
 >;
 
 export const achievements: AchievementDefinition[] = [
   {
     id: 'streak-7',
-    name: '7-Day Streak',
+    label: '7-Day Streak',
     description: 'Solve puzzles 7 days in a row',
     type: 'streak',
   },
   {
     id: 'streak-30',
-    name: '30-Day Streak',
+    label: '30-Day Streak',
     description: 'Solve puzzles 30 days in a row',
     type: 'streak',
   },
   {
     id: 'total-100',
-    name: 'Century',
+    label: 'Century',
     description: 'Complete 100 puzzles',
     type: 'milestone',
   },
   {
     id: 'perfect-month',
-    name: 'Perfect Month',
+    label: 'Perfect Month',
     description: 'Solve every day in a month',
     type: 'perfect',
   },

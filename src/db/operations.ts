@@ -61,7 +61,15 @@ export async function saveAchievement(achievement: Achievement): Promise<void> {
 
 export async function getAchievements(): Promise<Achievement[]> {
   const db = await initDB();
-  return db.getAll('achievements');
+  const achievements = await db.getAll('achievements');
+
+  return achievements.map((achievement) => {
+    const legacyAchievement = achievement as Achievement & { name?: string };
+    return {
+      ...legacyAchievement,
+      label: legacyAchievement.label ?? legacyAchievement.name ?? 'Achievement',
+    };
+  });
 }
 
 export async function clearAllData(): Promise<void> {

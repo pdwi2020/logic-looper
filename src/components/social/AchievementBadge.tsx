@@ -55,7 +55,7 @@ export function AchievementBadge({
       <div className="min-w-0">
         <div className="flex items-center gap-2">
           <h3 className="truncate font-sans text-sm font-semibold text-brand-dark">
-            {achievement.name}
+            {achievement.label}
           </h3>
           {isNew ? (
             <span className="rounded-full bg-brand-accent px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brand-white">
