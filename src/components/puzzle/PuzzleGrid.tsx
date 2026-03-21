@@ -20,7 +20,7 @@ export function PuzzleGrid({
       </p>
 
       <div
-        className="grid gap-2 rounded-2xl border border-brand-light-steel bg-brand-light-blue/20 p-3"
+        className="grid gap-3 rounded-2xl border border-brand-light-steel bg-brand-light-blue/20 p-3 sm:gap-2"
         style={{
           gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))`,
         }}
@@ -36,7 +36,7 @@ export function PuzzleGrid({
               <div
                 key={`${rowIndex}-${colIndex}`}
                 className={[
-                  'flex h-14 items-center justify-center rounded-lg border text-lg font-semibold',
+                  'flex h-16 items-center justify-center rounded-lg border text-xl font-semibold sm:h-14 sm:text-lg',
                   isHighlighted
                     ? 'border-brand-accent/60 bg-brand-light-lavender text-brand-dark'
                     : 'border-brand-light-steel bg-brand-white text-brand-dark-gray',
@@ -49,7 +49,7 @@ export function PuzzleGrid({
                     inputMode="numeric"
                     value={userAnswer}
                     onChange={(event) => onAnswerChange(event.target.value)}
-                    className="h-10 w-20 rounded-md border border-brand-blue/40 bg-brand-white px-2 text-center font-mono text-lg text-brand-dark outline-none transition-colors focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/30"
+                    className="h-12 w-full max-w-[5rem] rounded-md border border-brand-blue/40 bg-brand-white px-2 text-center font-mono text-xl text-brand-dark outline-none transition-colors focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/30 sm:h-10 sm:text-lg"
                     placeholder="?"
                   />
                 ) : (

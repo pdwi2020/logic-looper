@@ -3,23 +3,78 @@ import { motion } from 'framer-motion';
 
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import {
+  clearAllData,
+  getAchievements,
+  getAllActivities,
+} from '@/db/operations';
 
 type ThemeMode = 'light' | 'dark';
 
 export default function Settings() {
   const [themeMode, setThemeMode] = useState<ThemeMode>('light');
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [isStatusError, setIsStatusError] = useState(false);
+  const [confirmClear, setConfirmClear] = useState(false);
+  const [isWorking, setIsWorking] = useState(false);
 
-  const handleExportData = () => {
-    setStatusMessage(
-      'Export data will be available after account sync is enabled.',
-    );
+  const handleExportData = async () => {
+    setIsWorking(true);
+    setStatusMessage(null);
+    try {
+      const [activities, achievements] = await Promise.all([
+        getAllActivities(),
+        getAchievements(),
+      ]);
+      const payload = JSON.stringify({ activities, achievements }, null, 2);
+      const blob = new Blob([payload], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `logic-looper-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      setIsStatusError(false);
+      setStatusMessage(
+        `Exported ${activities.length} puzzle records and ${achievements.length} achievements.`,
+      );
+    } catch {
+      setIsStatusError(true);
+      setStatusMessage('Export failed. Please try again.');
+    } finally {
+      setIsWorking(false);
+    }
   };
 
-  const handleClearLocalData = () => {
-    setStatusMessage(
-      'Clear local data will be added with a safe confirmation step.',
-    );
+  const handleClearLocalData = async () => {
+    if (!confirmClear) {
+      setConfirmClear(true);
+      setIsStatusError(false);
+      setStatusMessage(
+        'This will permanently erase all puzzle history and badges. Click "Confirm Clear" to proceed.',
+      );
+      return;
+    }
+
+    setIsWorking(true);
+    setConfirmClear(false);
+    try {
+      await clearAllData();
+      setIsStatusError(false);
+      setStatusMessage('All local data cleared. Your history has been reset.');
+    } catch {
+      setIsStatusError(true);
+      setStatusMessage('Clear failed. Please try again.');
+    } finally {
+      setIsWorking(false);
+    }
+  };
+
+  const handleCancelClear = () => {
+    setConfirmClear(false);
+    setStatusMessage(null);
   };
 
   return (
@@ -71,18 +126,50 @@ export default function Settings() {
           </p>
 
           <div className="mt-4 flex flex-wrap gap-3">
-            <Button variant="primary" onClick={handleExportData}>
+            <Button
+              variant="primary"
+              onClick={() => void handleExportData()}
+              disabled={isWorking}
+            >
               Export Data
             </Button>
-            <Button variant="accent" onClick={handleClearLocalData}>
-              Clear Local Data
-            </Button>
+
+            {confirmClear ? (
+              <>
+                <Button
+                  variant="accent"
+                  onClick={() => void handleClearLocalData()}
+                  disabled={isWorking}
+                >
+                  Confirm Clear
+                </Button>
+                <Button variant="ghost" onClick={handleCancelClear}>
+                  Cancel
+                </Button>
+              </>
+            ) : (
+              <Button
+                variant="accent"
+                onClick={() => void handleClearLocalData()}
+                disabled={isWorking}
+              >
+                Clear Local Data
+              </Button>
+            )}
           </div>
 
           {statusMessage ? (
-            <p className="mt-4 rounded-lg border border-brand-light-periwinkle bg-brand-light-lavender px-3 py-2 text-xs text-brand-dark-gray">
+            <motion.p
+              className={`mt-4 rounded-lg border px-3 py-2 text-xs ${
+                isStatusError
+                  ? 'border-brand-accent/40 bg-brand-accent/10 text-brand-accent'
+                  : 'border-brand-light-periwinkle bg-brand-light-lavender text-brand-dark-gray'
+              }`}
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
               {statusMessage}
-            </p>
+            </motion.p>
           ) : null}
         </Card>
       </motion.section>

@@ -42,9 +42,14 @@ function createSeededRandom(seed: string): SeededRandom {
   };
 }
 
-function maskLastValue(sequence: number[]): (number | null)[] {
+// Randomly picks a non-boundary index (not first, not last) as the missing position
+function maskAtRandomPosition(
+  sequence: number[],
+  random: SeededRandom,
+): (number | null)[] {
+  const missingIndex = random.nextInt(1, sequence.length - 2);
   return sequence.map((value, index) =>
-    index === sequence.length - 1 ? null : value,
+    index === missingIndex ? null : value,
   );
 }
 
@@ -70,10 +75,10 @@ function generateDifficultyTwo(random: SeededRandom): {
   rule: string;
   hint: string;
 } {
-  const useGeometric = random.nextBoolean();
+  const variant = random.nextInt(0, 2); // 0=geometric, 1=quadratic-diff, 2=squares/triangular
   const length = random.nextInt(5, 7);
 
-  if (useGeometric) {
+  if (variant === 0) {
     const start = random.nextInt(2, 6);
     const ratio = random.nextInt(2, 4);
     const sequence = Array.from(
@@ -88,21 +93,51 @@ function generateDifficultyTwo(random: SeededRandom): {
     };
   }
 
-  const start = random.nextInt(1, 12);
-  const initialDifference = random.nextInt(2, 6);
-  const differenceStep = random.nextInt(1, 4);
-  const sequence: number[] = [start];
-  let currentDifference = initialDifference;
+  if (variant === 1) {
+    const start = random.nextInt(1, 12);
+    const initialDifference = random.nextInt(2, 6);
+    const differenceStep = random.nextInt(1, 4);
+    const sequence: number[] = [start];
+    let currentDifference = initialDifference;
 
-  for (let index = 1; index < length; index += 1) {
-    sequence.push(sequence[index - 1] + currentDifference);
-    currentDifference += differenceStep;
+    for (let index = 1; index < length; index += 1) {
+      sequence.push(sequence[index - 1] + currentDifference);
+      currentDifference += differenceStep;
+    }
+
+    return {
+      sequence,
+      rule: `Differences increase by ${differenceStep} each step.`,
+      hint: 'Find the jump between terms first, then check how those jumps change.',
+    };
   }
 
+  // Perfect squares or triangular numbers
+  const useSquares = random.nextBoolean();
+
+  if (useSquares) {
+    const startN = random.nextInt(1, 5);
+    const sequence = Array.from(
+      { length },
+      (_, index) => (startN + index) ** 2,
+    );
+    return {
+      sequence,
+      rule: 'Each term is a perfect square.',
+      hint: 'Try squaring consecutive integers starting from a small number.',
+    };
+  }
+
+  // Triangular numbers: T_n = n*(n+1)/2
+  const startN = random.nextInt(1, 5);
+  const sequence = Array.from({ length }, (_, index) => {
+    const n = startN + index;
+    return (n * (n + 1)) / 2;
+  });
   return {
     sequence,
-    rule: `Differences increase by ${differenceStep} each step.`,
-    hint: 'Find the jump between terms first, then check how those jumps change.',
+    rule: 'Triangular numbers: n \u00d7 (n+1) \u00f7 2.',
+    hint: 'The differences between terms increase by 1 each step.',
   };
 }
 
@@ -111,16 +146,17 @@ function generateDifficultyThree(random: SeededRandom): {
   rule: string;
   hint: string;
 } {
-  const useFibonacciLike = random.nextBoolean();
+  const variant = random.nextInt(0, 2); // 0=fibonacci, 1=alternating, 2=triangular
   const length = random.nextInt(6, 7);
 
-  if (useFibonacciLike) {
+  if (variant === 0) {
+    // Fibonacci-like with overflow cap at 999
     const first = random.nextInt(1, 9);
     const second = random.nextInt(1, 9);
     const sequence: number[] = [first, second];
 
     for (let index = 2; index < length; index += 1) {
-      sequence.push(sequence[index - 1] + sequence[index - 2]);
+      sequence.push(Math.min(sequence[index - 1] + sequence[index - 2], 999));
     }
 
     return {
@@ -130,22 +166,37 @@ function generateDifficultyThree(random: SeededRandom): {
     };
   }
 
-  const start = random.nextInt(4, 20);
-  const addValue = random.nextInt(2, 8);
-  const multiplier = random.nextInt(2, 3);
-  const sequence: number[] = [start];
+  if (variant === 1) {
+    // Alternating +/× operations with overflow cap at 999
+    const start = random.nextInt(4, 20);
+    const addValue = random.nextInt(2, 8);
+    const multiplier = random.nextInt(2, 3);
+    const sequence: number[] = [start];
 
-  for (let index = 1; index < length; index += 1) {
-    const previous = sequence[index - 1];
-    const nextValue =
-      index % 2 === 1 ? previous + addValue : previous * multiplier;
-    sequence.push(nextValue);
+    for (let index = 1; index < length; index += 1) {
+      const previous = sequence[index - 1];
+      const nextValue =
+        index % 2 === 1 ? previous + addValue : previous * multiplier;
+      sequence.push(Math.min(nextValue, 999));
+    }
+
+    return {
+      sequence,
+      rule: `Alternate operations: +${addValue}, then \u00d7${multiplier}, then repeat.`,
+      hint: 'The operation switches every step. Identify the two-step cycle.',
+    };
   }
 
+  // Triangular numbers at a higher starting point for difficulty 3
+  const startN = random.nextInt(4, 10);
+  const sequence = Array.from({ length }, (_, index) => {
+    const n = startN + index;
+    return (n * (n + 1)) / 2;
+  });
   return {
     sequence,
-    rule: `Alternate operations: +${addValue}, then *${multiplier}, then repeat.`,
-    hint: 'The operation switches every step. Identify the two-step cycle.',
+    rule: 'Triangular numbers: n \u00d7 (n+1) \u00f7 2.',
+    hint: 'The differences between consecutive terms increase by exactly 1 each step.',
   };
 }
 
@@ -163,9 +214,12 @@ export function generateSequence(
         ? generateDifficultyTwo(random)
         : generateDifficultyThree(random);
 
+  const masked = maskAtRandomPosition(sequence, random);
+  const missingIndex = masked.findIndex((v) => v === null);
+
   return {
-    sequence: maskLastValue(sequence),
-    answer: sequence[sequence.length - 1],
+    sequence: masked,
+    answer: sequence[missingIndex],
     rule,
     difficulty: boundedDifficulty,
     hint,

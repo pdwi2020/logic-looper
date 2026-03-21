@@ -15,24 +15,30 @@ const LazyPuzzleContainer = lazy(async () => {
 
 const features = [
   {
-    title: 'Daily Puzzles',
+    title: '\ud83e\udde0 Daily Puzzles',
     description:
       'A fresh logic challenge drops every day so you can build consistency and sharpen your speed.',
     variant: 'elevated' as const,
   },
   {
-    title: 'Streak Tracking',
+    title: '\ud83d\udcc5 Streak Tracking',
     description:
       'Track every completion with visual heatmaps and streak milestones tied to your daily progress.',
     variant: 'default' as const,
   },
   {
-    title: 'Compete',
+    title: '\ud83c\udfc6 Compete',
     description:
       'Climb leaderboard ranks based on accuracy, timing, and sustained streak strength over time.',
     variant: 'outlined' as const,
   },
 ];
+
+const MS_PER_DAY = 86_400_000;
+
+function getDaysSinceEpoch(): number {
+  return Math.floor(Date.now() / MS_PER_DAY);
+}
 
 function PuzzlePreviewFallback() {
   return (
@@ -49,6 +55,10 @@ export default function Home() {
   const navigate = useNavigate();
   const [showPreview, setShowPreview] = useState<boolean>(false);
 
+  const daysSinceEpoch = getDaysSinceEpoch();
+  // Day 1 = Jan 1 1970; offset to a user-friendly counter starting from ~Day 1
+  const dayNumber = (daysSinceEpoch % 365) + 1;
+
   return (
     <div className="space-y-10">
       <motion.section
@@ -59,10 +69,10 @@ export default function Home() {
         transition={{ duration: 0.5, ease: 'easeOut' }}
       >
         <p className="font-sans text-xs font-semibold uppercase tracking-[0.24em] text-brand-light-blue">
-          Logic Looper
+          Logic Looper &mdash; Day {dayNumber}
         </p>
         <h1 className="mt-3 font-sans text-3xl font-bold md:text-5xl">
-          Daily Puzzle Logic Game
+          One puzzle. Every day. No retries.
         </h1>
         <p className="mt-4 max-w-2xl font-body text-base text-brand-light-sky md:text-lg">
           Solve one focused challenge each day, build your streak, and improve

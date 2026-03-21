@@ -14,13 +14,15 @@ describe('engine/puzzles/sequenceSolver', () => {
     expect(puzzle).toHaveProperty('hint');
   });
 
-  it('sequence has exactly one null entry and it is the last item', () => {
+  it('sequence has exactly one null entry at a non-boundary position', () => {
     const puzzle = generateSequence('sequence-null-check', 2);
     const nullIndexes = puzzle.sequence
       .map((value, index) => (value === null ? index : -1))
       .filter((index) => index !== -1);
 
-    expect(nullIndexes).toEqual([puzzle.sequence.length - 1]);
+    expect(nullIndexes).toHaveLength(1);
+    expect(nullIndexes[0]).toBeGreaterThan(0);
+    expect(nullIndexes[0]).toBeLessThan(puzzle.sequence.length - 1);
   });
 
   it('difficulty 1 sequence length is 5 to 7', () => {

@@ -9,6 +9,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { label: 'Home', to: '/' },
+  { label: 'Play', to: '/puzzle' },
   { label: 'Profile', to: '/profile' },
   { label: 'Leaderboard', to: '/leaderboard' },
 ];

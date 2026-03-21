@@ -6,7 +6,7 @@ describe('engine/index', () => {
     const dailyPuzzle = generateDailyPuzzle('2026-03-06');
 
     expect(dailyPuzzle).toHaveProperty('puzzle');
-    expect(['number-matrix', 'sequence-solver']).toContain(dailyPuzzle.type);
+    expect(['number-matrix', 'sequence-solver', 'equation-puzzle']).toContain(dailyPuzzle.type);
     expect(typeof dailyPuzzle.seed).toBe('string');
     expect(dailyPuzzle.seed.length).toBeGreaterThan(0);
   });

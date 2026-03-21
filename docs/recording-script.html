@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Logic Looper Demo Recording Script</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 15mm;
+    }
+
+    :root {
+      --navy: #17213f;
+      --accent: #414BEA;
+      --bubble: #f4f6ff;
+      --paper: #ffffff;
+      --ink: #18213d;
+      --muted: #5b6788;
+      --border: #d8def3;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      font-size: 16px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent) #e6ebff;
+    }
+
+    body {
+      margin: 0;
+      background: #edf1fb;
+      color: var(--ink);
+      font-family: system-ui, -apple-system, sans-serif;
+      line-height: 1.55;
+    }
+
+    .page {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto;
+      padding: 15mm;
+      background: var(--paper);
+    }
+
+    .header {
+      margin-bottom: 20px;
+      padding: 18px 22px 20px;
+      background: var(--navy);
+      color: #ffffff;
+      border-radius: 14px;
+    }
+
+    .header-label {
+      margin: 0 0 8px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      opacity: 0.85;
+    }
+
+    .header-title {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1.15;
+    }
+
+    .header-subtitle {
+      margin: 8px 0 0;
+      font-size: 13px;
+      letter-spacing: 0.03em;
+      color: rgba(255, 255, 255, 0.82);
+    }
+
+    .section-divider {
+      margin: 22px 0 10px;
+      padding: 8px 12px;
+      background: var(--accent);
+      color: #ffffff;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .segment-row {
+      display: grid;
+      grid-template-columns: 25% 75%;
+      gap: 18px;
+      align-items: start;
+      padding: 8px 0 14px;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .segment-meta {
+      padding: 6px 0;
+    }
+
+    .timestamp {
+      margin: 0 0 8px;
+      color: var(--accent);
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+    }
+
+    .meta-label {
+      margin: 0;
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .meta-action {
+      margin: 10px 0 0;
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .content-col {
+      min-width: 0;
+    }
+
+    .action-heading {
+      margin: 0 0 8px;
+      color: var(--navy);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .voiceover-box {
+      position: relative;
+      margin: 0;
+      padding: 14px 16px;
+      background: var(--bubble);
+      border-left: 4px solid var(--accent);
+      border-radius: 12px;
+      box-shadow: inset 0 0 0 1px var(--border);
+      color: var(--ink);
+      font-size: 14px;
+      font-style: italic;
+    }
+
+    .voiceover-box::before {
+      content: "";
+      position: absolute;
+      top: 16px;
+      left: -10px;
+      width: 14px;
+      height: 14px;
+      background: linear-gradient(135deg, var(--bubble) 50%, transparent 50%);
+    }
+
+    .voiceover-label {
+      display: inline-block;
+      margin-bottom: 7px;
+      color: var(--accent);
+      font-size: 10px;
+      font-style: normal;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .footer {
+      margin-top: 28px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    @media print {
+      html,
+      body {
+        margin: 0;
+        background: #ffffff;
+        overflow: visible;
+      }
+
+      html::-webkit-scrollbar,
+      body::-webkit-scrollbar {
+        display: none;
+      }
+
+      .page {
+        width: auto;
+        min-height: auto;
+        margin: 0;
+        padding: 0;
+      }
+
+      .header,
+      .section-divider,
+      .voiceover-box {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .page {
+        width: auto;
+        min-height: auto;
+        padding: 24px;
+      }
+
+      .segment-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="header">
+      <p class="header-label">BLUESTOCK FINTECH</p>
+      <h1 class="header-title">Logic Looper — Demo Recording Script</h1>
+      <p class="header-subtitle">OBS Voiceover Script · 10 Minutes · 1920×1080</p>
+    </header>
+
+    <section>
+      <div class="section-divider">SEGMENT 1: 0:00–1:00 — PDF Overview</div>
+      <div class="segment-row">
+        <div class="segment-meta">
+          <p class="timestamp">0:00–1:00</p>
+          <p class="meta-label">Action</p>
+          <p class="meta-action">Open PDF in Chrome, scroll through all 9 sections slowly</p>
+        </div>
+        <div class="content-col">
+          <p class="action-heading">Open PDF in Chrome, scroll through all 9 sections slowly</p>
+          <blockquote class="voiceover-box">
+            <span class="voiceover-label">Voiceover</span>
+            "This is my capstone submission document for Logic Looper, a daily puzzle logic game I built during my internship at Bluestock Fintech. The document covers the working principle, all features implemented, the tech stack, what has been completed, and the challenges I faced during development."
+          </blockquote>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-divider">SEGMENT 2: 1:00–1:30 — Home Page</div>
+      <div class="segment-row">
+        <div class="segment-meta">
+          <p class="timestamp">1:00–1:30</p>
+          <p class="meta-label">Action</p>
+          <p class="meta-action">Navigate to https://logic-looper-ruby.vercel.app, show hero section, click Load Puzzle Preview</p>
+        </div>
+        <div class="content-col">
+          <p class="action-heading">Navigate to https://logic-looper-ruby.vercel.app, show hero section, click Load Puzzle Preview</p>
+          <blockquote class="voiceover-box">
+            <span class="voiceover-label">Voiceover</span>
+            "This is Logic Looper, live on Vercel. The home page shows the three core pillars — daily puzzles, streak tracking, and an activity heatmap similar to GitHub's contribution graph."
+          </blockquote>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-divider">SEGMENT 3: 1:30–3:30 — Puzzle Arena</div>
+      <div class="segment-row">
+        <div class="segment-meta">
+          <p class="timestamp">1:30–3:30</p>
+          <p class="meta-label">Action</p>
+          <p class="meta-action">Navigate to Puzzle page, solve today's puzzle live — show timer, hint button, submit, score card</p>
+        </div>
+        <div class="content-col">
+          <p class="action-heading">Navigate to Puzzle page, solve today's puzzle live — show timer, hint button, submit, score card</p>
+          <blockquote class="voiceover-box">
+            <span class="voiceover-label">Voiceover</span>
+            "Every puzzle is deterministic — the same date always generates the same puzzle for every user, using HMAC-SHA256 hashing and a seeded Linear Congruential Generator. I'll submit my answer now... and there's the score card with time taken and difficulty level."
+          </blockquote>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-divider">SEGMENT 4: 3:30–5:30 — Profile Page</div>
+      <div class="segment-row">
+        <div class="segment-meta">
+          <p class="timestamp">3:30–5:30</p>
+          <p class="meta-label">Action</p>
+          <p class="meta-action">Navigate to Profile, hover heatmap cells, scroll to badges</p>
+        </div>
+        <div class="content-col">
+          <p class="action-heading">Navigate to Profile, hover heatmap cells, scroll to badges</p>
+          <blockquote class="voiceover-box">
+            <span class="voiceover-label">Voiceover</span>
+            "The Profile page shows your current streak, your longest streak, and an On Fire indicator if you've played three or more days in a row. This is the 52-week activity heatmap — each cell shows how many puzzles were completed that day. You can hover for the exact date and count. Achievement badges are earned for milestones like a 7-day streak, 30-day streak, solving 100 puzzles, or completing every day in a month."
+          </blockquote>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-divider">SEGMENT 5: 5:30–6:00 — Leaderboard</div>
+      <div class="segment-row">
+        <div class="segment-meta">
+          <p class="timestamp">5:30–6:00</p>
+          <p class="meta-label">Action</p>
+          <p class="meta-action">Navigate to Leaderboard, show rankings table</p>
+        </div>
+        <div class="content-col">
+          <p class="action-heading">Navigate to Leaderboard, show rankings table</p>
+          <blockquote class="voiceover-box">
+            <span class="voiceover-label">Voiceover</span>
+            "The Leaderboard shows the top ranked players. The ranking system is currently seeded — real rankings will be added post-authentication in a future release."
+          </blockquote>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-divider">SEGMENT 6: 6:00–6:30 — Settings + Mobile</div>
+      <div class="segment-row">
+        <div class="segment-meta">
+          <p class="timestamp">6:00–6:30</p>
+          <p class="meta-label">Action</p>
+          <p class="meta-action">Navigate to Settings, then resize browser to mobile width to show hamburger nav</p>
+        </div>
+        <div class="content-col">
+          <p class="action-heading">Navigate to Settings, then resize browser to mobile width to show hamburger nav</p>
+          <blockquote class="voiceover-box">
+            <span class="voiceover-label">Voiceover</span>
+            "Settings gives users control over their data and account preferences. The app is fully responsive — at mobile widths the navigation collapses into a hamburger menu. It's also PWA-installable on Android and desktop."
+          </blockquote>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-divider">SEGMENT 7: 7:00–7:30 — VS Code: Seed Generator</div>
+      <div class="segment-row">
+        <div class="segment-meta">
+          <p class="timestamp">7:00–7:30</p>
+          <p class="meta-label">Action</p>
+          <p class="meta-action">Switch to VS Code, open src/engine/seedGenerator.ts</p>
+        </div>
+        <div class="content-col">
+          <p class="action-heading">Switch to VS Code, open src/engine/seedGenerator.ts</p>
+          <blockquote class="voiceover-box">
+            <span class="voiceover-label">Voiceover</span>
+            "This is the seed generator. It takes today's date, hashes it with HMAC-SHA256 using crypto-js, and feeds the result into a Linear Congruential Generator to produce all the puzzle's values deterministically."
+          </blockquote>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-divider">SEGMENT 8: 7:30–8:15 — Puzzle Engines</div>
+      <div class="segment-row">
+        <div class="segment-meta">
+          <p class="timestamp">7:30–8:15</p>
+          <p class="meta-label">Action</p>
+          <p class="meta-action">Open src/engine/puzzles/numberMatrix.ts then sequenceSolver.ts</p>
+        </div>
+        <div class="content-col">
+          <p class="action-heading">Open src/engine/puzzles/numberMatrix.ts then sequenceSolver.ts</p>
+          <blockquote class="voiceover-box">
+            <span class="voiceover-label">Voiceover</span>
+            "Number Matrix generates a grid where missing cells must be solved using row and column logic. Sequence Solver produces missing elements in arithmetic, geometric, or Fibonacci-style sequences."
+          </blockquote>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-divider">SEGMENT 9: 8:15–9:00 — IndexedDB + Sync Middleware</div>
+      <div class="segment-row">
+        <div class="segment-meta">
+          <p class="timestamp">8:15–9:00</p>
+          <p class="meta-label">Action</p>
+          <p class="meta-action">Open src/db/operations.ts then src/store/middleware/syncMiddleware.ts</p>
+        </div>
+        <div class="content-col">
+          <p class="action-heading">Open src/db/operations.ts then src/store/middleware/syncMiddleware.ts</p>
+          <blockquote class="voiceover-box">
+            <span class="voiceover-label">Voiceover</span>
+            "All completions are saved immediately to IndexedDB — this is what makes the app fully offline-first. No internet needed to play. This Redux middleware counts completions. Every fifth one triggers a batch POST to the backend — but only if the device is online."
+          </blockquote>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-divider">SEGMENT 10: 9:00–9:45 — API Endpoint</div>
+      <div class="segment-row">
+        <div class="segment-meta">
+          <p class="timestamp">9:00–9:45</p>
+          <p class="meta-label">Action</p>
+          <p class="meta-action">Open api/sync/daily-scores.ts</p>
+        </div>
+        <div class="content-col">
+          <p class="action-heading">Open api/sync/daily-scores.ts</p>
+          <blockquote class="voiceover-box">
+            <span class="voiceover-label">Voiceover</span>
+            "This is the Vercel serverless function that receives the batch sync, validates it, and persists scores to PostgreSQL on Neon via Prisma."
+          </blockquote>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-divider">SEGMENT 11: 9:45–10:00 — Closing</div>
+      <div class="segment-row">
+        <div class="segment-meta">
+          <p class="timestamp">9:45–10:00</p>
+          <p class="meta-label">Action</p>
+          <p class="meta-action">Switch back to live app at https://logic-looper-ruby.vercel.app</p>
+        </div>
+        <div class="content-col">
+          <p class="action-heading">Switch back to live app at https://logic-looper-ruby.vercel.app</p>
+          <blockquote class="voiceover-box">
+            <span class="voiceover-label">Voiceover</span>
+            "That's Logic Looper — a complete offline-first daily puzzle game with deterministic generation, streak tracking, achievement badges, and a full backend sync pipeline. Built with React 19, TypeScript, Redux Toolkit, IndexedDB, Prisma, and PostgreSQL. Thank you."
+          </blockquote>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      Logic Looper Capstone · paritoshdwi2019 · March 2026 · logic-looper-ruby.vercel.app
+    </footer>
+  </main>
+</body>
+</html>

@@ -4,11 +4,13 @@ import { useDispatch } from 'react-redux';
 
 import { PuzzleGrid } from '@/components/puzzle/PuzzleGrid';
 import { SequenceView } from '@/components/puzzle/SequenceView';
+import { EquationView } from '@/components/puzzle/EquationView';
 import { Timer } from '@/components/puzzle/Timer';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { saveActivity } from '@/db/operations';
 import { generateDailyPuzzle, validatePuzzleAnswer } from '@/engine';
+import type { NumberMatrixPuzzle } from '@/engine/puzzles/numberMatrix';
 import { puzzleCompleted } from '@/store/slices';
 import type { AppDispatch } from '@/store/store';
 
@@ -16,6 +18,24 @@ function formatSecondsToClock(seconds: number): string {
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = seconds % 60;
   return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+}
+
+function calculateScore(timeTaken: number, difficulty: number): number {
+  const timeFactor =
+    timeTaken < 30
+      ? 100
+      : timeTaken < 60
+        ? 85
+        : timeTaken < 90
+          ? 70
+          : timeTaken < 120
+            ? 55
+            : 40;
+
+  const diffMultiplier =
+    difficulty === 1 ? 1.0 : difficulty === 2 ? 1.5 : 2.0;
+
+  return Math.round(timeFactor * diffMultiplier);
 }
 
 export function PuzzleContainer() {
@@ -29,10 +49,15 @@ export function PuzzleContainer() {
   const [timeTaken, setTimeTaken] = useState(0);
   const [showResult, setShowResult] = useState(false);
   const [showTryAgain, setShowTryAgain] = useState(false);
-  const [showHint, setShowHint] = useState(false);
-  const [hintPenalty, setHintPenalty] = useState(0);
+  // hintLevel: 0 = none, 1/2/3 = progressive hints (matrix supports 3; others support 1)
+  const [hintLevel, setHintLevel] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const maxHintLevel = type === 'number-matrix' ? 3 : 1;
+  const hintPenalty = hintLevel * 10;
+  const showHint = hintLevel > 0;
 
   const today = useMemo(() => {
     const now = new Date();
@@ -52,11 +77,8 @@ export function PuzzleContainer() {
   }, []);
 
   const handleShowHint = useCallback(() => {
-    setShowHint(true);
-    setHintPenalty((currentPenalty) =>
-      currentPenalty === 0 ? 10 : currentPenalty,
-    );
-  }, []);
+    setHintLevel((prev) => Math.min(prev + 1, maxHintLevel));
+  }, [maxHintLevel]);
 
   const handleSubmit = useCallback(async () => {
     if (isComplete || isSaving) {
@@ -76,8 +98,9 @@ export function PuzzleContainer() {
       return;
     }
 
-    const baseScore = Math.max(10, 100 - timeTaken);
-    const finalScore = Math.max(0, baseScore - hintPenalty);
+    const currentHintPenalty = hintLevel * 10;
+    const baseScore = calculateScore(timeTaken, puzzle.difficulty);
+    const finalScore = Math.max(0, baseScore - currentHintPenalty);
 
     setScore(finalScore);
     setIsComplete(true);
@@ -108,7 +131,7 @@ export function PuzzleContainer() {
     }
   }, [
     dispatch,
-    hintPenalty,
+    hintLevel,
     isComplete,
     isSaving,
     puzzle,
@@ -118,10 +141,42 @@ export function PuzzleContainer() {
     userAnswer,
   ]);
 
+  const handleShareScore = useCallback(() => {
+    const dayNumber = (Math.floor(Date.now() / 86_400_000) % 365) + 1;
+    const text = `I scored ${score} pts on Logic Looper Day ${dayNumber} (Difficulty ${puzzle.difficulty}) ⚡ https://logic-looper-ruby.vercel.app`;
+    if (navigator.clipboard) {
+      void navigator.clipboard.writeText(text).then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      });
+    }
+  }, [score, puzzle.difficulty]);
+
+  // Resolve the hint text for the current hint level
+  const currentHintText = useMemo(() => {
+    if (!showHint) return '';
+    if (type === 'number-matrix' && 'hints' in puzzle) {
+      const level = Math.min(hintLevel - 1, 2);
+      return (puzzle as NumberMatrixPuzzle).hints[level];
+    }
+    return puzzle.hint;
+  }, [showHint, type, puzzle, hintLevel]);
+
   const submitDisabled =
     userAnswer.trim().length === 0 || isComplete || isSaving;
+  const hintDisabled = hintLevel >= maxHintLevel || isComplete;
+
   const puzzleTitle =
-    type === 'number-matrix' ? 'Number Matrix' : 'Sequence Solver';
+    type === 'number-matrix'
+      ? 'Number Matrix'
+      : type === 'sequence-solver'
+        ? 'Sequence Solver'
+        : 'Equation Puzzle';
+
+  const hintLabel =
+    type === 'number-matrix' && hintLevel > 0 && hintLevel < 3
+      ? `Hint ${hintLevel + 1} (-10)`
+      : 'Hint (-10)';
 
   return (
     <Card
@@ -130,7 +185,8 @@ export function PuzzleContainer() {
       className="mx-auto w-full max-w-3xl"
     >
       <div className="space-y-5">
-        <div className="flex flex-col items-start justify-between gap-3 rounded-xl bg-brand-light-blue/20 p-3 sm:flex-row sm:items-center">
+        {/* Difficulty + Timer — sticky on mobile so it stays visible while scrolling */}
+        <div className="sticky top-16 z-30 flex flex-col items-start justify-between gap-3 rounded-xl bg-brand-light-blue/95 p-3 backdrop-blur-sm sm:relative sm:top-auto sm:z-auto sm:flex-row sm:items-center sm:bg-brand-light-blue/20 sm:backdrop-blur-none">
           <div>
             <p className="font-sans text-xs font-semibold uppercase tracking-[0.15em] text-brand-dark-gray">
               Difficulty
@@ -163,29 +219,48 @@ export function PuzzleContainer() {
               onAnswerChange={handleAnswerChange}
             />
           </div>
+        ) : type === 'equation-puzzle' && 'equation' in puzzle ? (
+          <EquationView
+            equation={puzzle.equation}
+            userAnswer={userAnswer}
+            onAnswerChange={handleAnswerChange}
+          />
         ) : null}
 
-        <div className="flex flex-wrap gap-3">
+        {/* Action buttons — full-width on mobile */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <Button
             variant="ghost"
             onClick={handleShowHint}
-            disabled={showHint || isComplete}
+            disabled={hintDisabled}
+            className="min-h-[2.75rem] w-full sm:w-auto"
           >
-            Hint (-10)
+            {hintLabel}
           </Button>
-          <Button onClick={() => void handleSubmit()} disabled={submitDisabled}>
+          <Button
+            onClick={() => void handleSubmit()}
+            disabled={submitDisabled}
+            className="min-h-[2.75rem] w-full sm:w-auto"
+          >
             {isSaving ? 'Saving...' : 'Submit'}
           </Button>
         </div>
 
         {showHint ? (
-          <motion.p
-            className="rounded-lg border border-brand-accent/30 bg-brand-light-lavender px-3 py-2 font-body text-sm text-brand-dark"
+          <motion.div
+            className="rounded-lg border border-brand-accent/30 bg-brand-light-lavender px-3 py-2"
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            Hint: {puzzle.hint}
-          </motion.p>
+            {type === 'number-matrix' && hintLevel > 1 ? (
+              <p className="mb-1 font-sans text-xs font-semibold uppercase tracking-wide text-brand-dark-gray">
+                Hint {hintLevel} of 3
+              </p>
+            ) : null}
+            <p className="font-body text-sm text-brand-dark">
+              {currentHintText}
+            </p>
+          </motion.div>
         ) : null}
 
         {showTryAgain ? (
@@ -215,7 +290,13 @@ export function PuzzleContainer() {
               Puzzle solved!
             </motion.p>
             <p className="mt-1 font-body text-sm text-brand-dark">
-              Score: <span className="font-semibold">{score}</span>
+              Score:{' '}
+              <span className="font-semibold">{score}</span>
+              {hintPenalty > 0 ? (
+                <span className="ml-1 text-brand-dark-gray">
+                  (−{hintPenalty} hint penalty)
+                </span>
+              ) : null}
             </p>
             <p className="font-body text-sm text-brand-dark">
               Time:{' '}
@@ -231,6 +312,21 @@ export function PuzzleContainer() {
             >
               Great focus and pattern recognition.
             </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.35 }}
+              className="mt-3"
+            >
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleShareScore}
+              >
+                {copied ? 'Copied!' : 'Share Score'}
+              </Button>
+            </motion.div>
           </motion.div>
         ) : null}
 

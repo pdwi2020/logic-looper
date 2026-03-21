@@ -62,7 +62,7 @@ describe('engine/seedGenerator', () => {
 
     expect(config.seed).toMatch(HEX_64_REGEX);
     expect([1, 2, 3]).toContain(config.difficulty);
-    expect(['number-matrix', 'sequence-solver']).toContain(config.puzzleType);
+    expect(['number-matrix', 'sequence-solver', 'equation-puzzle']).toContain(config.puzzleType);
   });
 
   it('getDailyPuzzleConfig computes difficulty from day-of-year thresholds', () => {
@@ -71,10 +71,9 @@ describe('engine/seedGenerator', () => {
     expect(getDailyPuzzleConfig('2024-09-01').difficulty).toBe(3);
   });
 
-  it('getDailyPuzzleConfig alternates puzzle type by daysSinceEpoch parity', () => {
+  it('getDailyPuzzleConfig cycles puzzle type by daysSinceEpoch modulo 3', () => {
     expect(getDailyPuzzleConfig('1970-01-01').puzzleType).toBe('number-matrix');
-    expect(getDailyPuzzleConfig('1970-01-02').puzzleType).toBe(
-      'sequence-solver',
-    );
+    expect(getDailyPuzzleConfig('1970-01-02').puzzleType).toBe('sequence-solver');
+    expect(getDailyPuzzleConfig('1970-01-03').puzzleType).toBe('equation-puzzle');
   });
 });

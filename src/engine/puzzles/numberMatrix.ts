@@ -3,7 +3,10 @@ export interface NumberMatrixPuzzle {
   missingCell: { row: number; col: number };
   answer: number;
   difficulty: number;
+  /** Primary hint — equals hints[0] for convenience */
   hint: string;
+  /** Three progressive hints: vague → specific → very specific */
+  hints: [string, string, string];
 }
 
 interface SeededRandom {
@@ -82,11 +85,12 @@ function applyMissingCell(
 
 function generateDifficultyOne(random: SeededRandom): {
   grid: number[][];
-  hint: string;
+  hints: [string, string, string];
 } {
-  const useRowPattern = random.nextBoolean();
+  const variant = random.nextInt(0, 2); // 0=row-sum, 1=col-sum, 2=alternating
 
-  if (useRowPattern) {
+  if (variant === 0) {
+    // row sum: [a, b, a+b]
     const grid = Array.from({ length: 3 }, () => {
       const first = random.nextInt(1, 9);
       const second = random.nextInt(1, 9);
@@ -95,23 +99,52 @@ function generateDifficultyOne(random: SeededRandom): {
 
     return {
       grid,
-      hint: 'Each row follows: first + second = third.',
+      hints: [
+        'Each row follows a consistent three-number pattern.',
+        'Look at the relationship between the first two numbers and the third.',
+        'Each row: first + second = third.',
+      ],
     };
   }
 
-  const topRow = Array.from({ length: 3 }, () => random.nextInt(1, 9));
-  const middleRow = Array.from({ length: 3 }, () => random.nextInt(1, 9));
-  const bottomRow = topRow.map((value, index) => value + middleRow[index]);
+  if (variant === 1) {
+    // column sum: top + middle = bottom
+    const topRow = Array.from({ length: 3 }, () => random.nextInt(1, 9));
+    const middleRow = Array.from({ length: 3 }, () => random.nextInt(1, 9));
+    const bottomRow = topRow.map((value, index) => value + middleRow[index]);
+
+    return {
+      grid: [topRow, middleRow, bottomRow],
+      hints: [
+        'Each column follows a consistent three-number pattern.',
+        'Look at the relationship between the top, middle, and bottom values in each column.',
+        'Each column: top + middle = bottom.',
+      ],
+    };
+  }
+
+  // Alternating rows: odd rows add, even rows subtract
+  // Use first >= 5 and second < first to guarantee no negatives in even rows
+  const grid = Array.from({ length: 3 }, (_, rowIndex) => {
+    const first = random.nextInt(5, 9);
+    const second = random.nextInt(1, first - 1);
+    const third = rowIndex % 2 === 0 ? first + second : first - second;
+    return [first, second, third];
+  });
 
   return {
-    grid: [topRow, middleRow, bottomRow],
-    hint: 'Each column follows: top + middle = bottom.',
+    grid,
+    hints: [
+      'Each row has a relationship between its three numbers.',
+      'The operation (+ or \u2212) alternates between rows.',
+      'Row 1 and 3: first + second = third. Row 2: first \u2212 second = third.',
+    ],
   };
 }
 
 function generateDifficultyTwo(random: SeededRandom): {
   grid: number[][];
-  hint: string;
+  hints: [string, string, string];
 } {
   const rowFactors = Array.from({ length: 3 }, () => random.nextInt(2, 9));
   const columnFactors = Array.from({ length: 3 }, () => random.nextInt(2, 9));
@@ -128,17 +161,22 @@ function generateDifficultyTwo(random: SeededRandom): {
 
   return {
     grid,
-    hint: 'Top row and left column are factors; inside cells are products.',
+    hints: [
+      'The grid follows a multiplication-based pattern.',
+      'Look at the header row and left column — they contain factors.',
+      'Top row and left column are factors; inside cells are their products.',
+    ],
   };
 }
 
 function generateDifficultyThree(random: SeededRandom): {
   grid: number[][];
-  hint: string;
+  hints: [string, string, string];
 } {
+  // Clamp to 2–7 to prevent overflow: max fourth = 7*7 + 14 = 63
   const grid = Array.from({ length: 4 }, () => {
-    const first = random.nextInt(2, 12);
-    const second = random.nextInt(2, 12);
+    const first = random.nextInt(2, 7);
+    const second = random.nextInt(2, 7);
     const third = first + second;
     const fourth = first * second + third;
 
@@ -147,7 +185,11 @@ function generateDifficultyThree(random: SeededRandom): {
 
   return {
     grid,
-    hint: 'Per row: third = first + second, fourth = first * second + third.',
+    hints: [
+      'Each row follows a two-step formula involving all four columns.',
+      'Look at how column 3 relates to columns 1 and 2.',
+      'Per row: col3 = col1 + col2, col4 = col1 \u00d7 col2 + col3.',
+    ],
   };
 }
 
@@ -158,7 +200,7 @@ export function generateNumberMatrix(
   const boundedDifficulty = Math.min(3, Math.max(1, Math.floor(difficulty)));
   const random = createSeededRandom(`${seed}-${boundedDifficulty}`);
 
-  const { grid, hint } =
+  const { grid, hints } =
     boundedDifficulty === 1
       ? generateDifficultyOne(random)
       : boundedDifficulty === 2
@@ -174,7 +216,8 @@ export function generateNumberMatrix(
     missingCell,
     answer,
     difficulty: boundedDifficulty,
-    hint,
+    hint: hints[0],
+    hints,
   };
 }
 

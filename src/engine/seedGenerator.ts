@@ -3,7 +3,7 @@ import CryptoJS from 'crypto-js';
 const DEFAULT_SECRET = 'logic-looper-daily-secret-v1';
 const MS_PER_DAY = 86_400_000;
 
-type DailyPuzzleType = 'number-matrix' | 'sequence-solver';
+type DailyPuzzleType = 'number-matrix' | 'sequence-solver' | 'equation-puzzle';
 
 function parseUtcDate(date: string): Date {
   const parsedDate = new Date(`${date}T00:00:00Z`);
@@ -57,8 +57,9 @@ export function getDailyPuzzleConfig(date: string): {
   const daysSinceEpoch = Math.floor(parsedDate.getTime() / MS_PER_DAY);
 
   const difficulty = Math.min(3, Math.floor((dayOfYear - 1) / 122) + 1);
+  const mod = daysSinceEpoch % 3;
   const puzzleType: DailyPuzzleType =
-    daysSinceEpoch % 2 === 0 ? 'number-matrix' : 'sequence-solver';
+    mod === 0 ? 'number-matrix' : mod === 1 ? 'sequence-solver' : 'equation-puzzle';
 
   return { seed, difficulty, puzzleType };
 }

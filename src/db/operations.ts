@@ -63,3 +63,9 @@ export async function getAchievements(): Promise<Achievement[]> {
   const db = await initDB();
   return db.getAll('achievements');
 }
+
+export async function clearAllData(): Promise<void> {
+  const db = await initDB();
+  await db.clear('dailyActivity');
+  await db.clear('achievements');
+}
