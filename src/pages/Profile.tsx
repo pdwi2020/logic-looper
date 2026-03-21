@@ -126,9 +126,13 @@ export default function Profile() {
           variant="elevated"
         >
           {isStreakLoading ? (
-            <p className="mt-2 font-body text-sm text-brand-dark-gray">
-              Loading streak stats...
-            </p>
+            <>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2 animate-pulse">
+                <div className="rounded-xl bg-brand-light-blue/45 p-4 h-24" />
+                <div className="rounded-xl bg-brand-light-lavender p-4 h-24" />
+              </div>
+              <div className="mt-4 h-12 rounded-xl bg-brand-light-blue/20 animate-pulse" />
+            </>
           ) : (
             <>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -217,9 +221,11 @@ export default function Profile() {
       >
         <Card title="Achievement Badges" variant="default">
           {isLoadingAchievements ? (
-            <p className="mt-2 text-sm text-brand-dark-gray">
-              Loading achievements...
-            </p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 animate-pulse">
+              {[0, 1, 2].map(i => (
+                <div key={i} className="h-20 rounded-xl bg-brand-light-blue/30" />
+              ))}
+            </div>
           ) : sortedAchievements.length === 0 ? (
             <div className="mt-2 space-y-3">
               <p className="text-sm text-brand-dark-gray">

@@ -101,8 +101,17 @@ export function HeatmapContainer() {
           </div>
 
           {isLoading ? (
-            <div className="flex h-44 items-center justify-center rounded-xl border border-dashed border-brand-light-steel bg-brand-light-gray/50 font-sans text-sm font-medium text-brand-dark-gray">
-              Loading activity...
+            <div className="mt-4 space-y-3 animate-pulse">
+              <div className="h-5 w-36 rounded bg-brand-light-blue/40" />
+              <div className="grid grid-cols-12 gap-1">
+                {Array.from({ length: 52 }).map((_, i) => (
+                  <div key={i} className="h-3 rounded-sm bg-brand-light-blue/30" />
+                ))}
+              </div>
+              <div className="flex gap-4">
+                <div className="h-4 w-16 rounded bg-brand-light-blue/20" />
+                <div className="h-4 w-20 rounded bg-brand-light-blue/20" />
+              </div>
             </div>
           ) : (
             <>

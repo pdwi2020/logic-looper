@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useDispatch } from 'react-redux';
 
@@ -8,12 +8,24 @@ import { EquationView } from '@/components/puzzle/EquationView';
 import { Timer } from '@/components/puzzle/Timer';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { saveActivity } from '@/db/operations';
+import {
+  getAchievements,
+  getActivity,
+  getAllActivities,
+  saveAchievement,
+  saveActivity,
+} from '@/db/operations';
 import { generateDailyPuzzle, validatePuzzleAnswer } from '@/engine';
 import type { PuzzleType } from '@/engine';
 import type { NumberMatrixPuzzle } from '@/engine/puzzles/numberMatrix';
 import { puzzleCompleted } from '@/store/slices';
 import type { AppDispatch } from '@/store/store';
+import type { Achievement, DailyActivity } from '@/db/schemas';
+import { checkAchievements } from '@/services/achievementService';
+import {
+  calculateCurrentStreak,
+  calculateLongestStreak,
+} from '@/services/streakService';
 
 function formatSecondsToClock(seconds: number): string {
   const minutes = Math.floor(seconds / 60);
@@ -63,6 +75,10 @@ export function PuzzleContainer() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [newAchievements, setNewAchievements] = useState<Achievement[]>([]);
+  const [todayActivity, setTodayActivity] = useState<
+    DailyActivity | null | undefined
+  >(undefined);
 
   const maxHintLevel = type === 'number-matrix' ? 3 : 1;
   const hintPenalty = hintLevel * 10;
@@ -76,6 +92,12 @@ export function PuzzleContainer() {
     const day = String(now.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   }, []);
+
+  useEffect(() => {
+    getActivity(today).then((activity) => {
+      setTodayActivity(activity ?? null);
+    });
+  }, [today]);
 
   const handleTimeUpdate = useCallback((seconds: number) => {
     setTimeTaken(seconds);
@@ -132,6 +154,24 @@ export function PuzzleContainer() {
       });
 
       dispatch(puzzleCompleted());
+
+      const freshActivities = await getAllActivities();
+      const totalSolvedCount = freshActivities.filter((a) => a.solved).length;
+      const curStreak = calculateCurrentStreak(freshActivities);
+      const lonStreak = calculateLongestStreak(freshActivities);
+      const potentials = checkAchievements(
+        curStreak,
+        lonStreak,
+        totalSolvedCount,
+        freshActivities,
+      );
+      const savedAchs = await getAchievements();
+      const savedIds = new Set(savedAchs.map((a) => a.id));
+      const freshOnes = potentials.filter((a) => !savedIds.has(a.id));
+      await Promise.all(freshOnes.map((a) => saveAchievement(a)));
+      if (freshOnes.length > 0) {
+        setNewAchievements(freshOnes);
+      }
     } catch (error) {
       const message =
         error instanceof Error
@@ -143,11 +183,14 @@ export function PuzzleContainer() {
     }
   }, [
     dispatch,
+    getAchievements,
+    getAllActivities,
     hintLevel,
     isComplete,
     isGivenUp,
     isSaving,
     puzzle,
+    saveAchievement,
     timeTaken,
     today,
     type,
@@ -221,6 +264,90 @@ export function PuzzleContainer() {
     type === 'number-matrix' && hintLevel > 0 && hintLevel < 3
       ? `Hint ${hintLevel + 1} (-10)`
       : 'Hint (-10)';
+
+  if (todayActivity === undefined) {
+    return (
+      <Card
+        title="Daily Puzzle"
+        variant="elevated"
+        className="mx-auto w-full max-w-3xl"
+      >
+        <div className="flex h-32 items-center justify-center">
+          <span className="h-5 w-5 animate-spin rounded-full border-2 border-brand-blue/40 border-t-brand-blue" />
+        </div>
+      </Card>
+    );
+  }
+
+  if (todayActivity !== null && todayActivity.solved) {
+    return (
+      <Card
+        title="Daily Puzzle: Already Completed"
+        variant="elevated"
+        className="mx-auto w-full max-w-3xl"
+      >
+        <div className="space-y-4 py-2">
+          <div className="rounded-xl border border-brand-blue/25 bg-brand-light-sky/35 p-4">
+            <p className="font-sans text-lg font-bold text-brand-blue">
+              Today's puzzle is done!
+            </p>
+            <p className="mt-1 font-body text-sm text-brand-dark">
+              Score:{' '}
+              <span className="font-semibold">
+                {todayActivity.score.toLocaleString()}
+              </span>
+            </p>
+            <p className="font-body text-sm text-brand-dark">
+              Time:{' '}
+              <span className="font-semibold">
+                {formatSecondsToClock(todayActivity.timeTaken)}
+              </span>
+            </p>
+            <p className="mt-2 font-body text-xs text-brand-dark-gray">
+              Come back tomorrow for a new challenge.
+            </p>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              window.location.href = '/profile';
+            }}
+          >
+            View Profile
+          </Button>
+        </div>
+      </Card>
+    );
+  }
+
+  if (todayActivity !== null && !todayActivity.solved) {
+    return (
+      <Card
+        title="Daily Puzzle: Attempted"
+        variant="elevated"
+        className="mx-auto w-full max-w-3xl"
+      >
+        <div className="rounded-xl border border-brand-dark-gray/20 bg-brand-light-gray p-4 space-y-3">
+          <p className="font-sans text-base font-semibold text-brand-dark-gray">
+            You already attempted today's puzzle.
+          </p>
+          <p className="font-body text-xs text-brand-dark-gray">
+            A new puzzle resets at midnight. Check your Profile for your history.
+          </p>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              window.location.href = '/profile';
+            }}
+          >
+            View Profile
+          </Button>
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card
@@ -404,6 +531,26 @@ export function PuzzleContainer() {
             </motion.div>
           </motion.div>
         ) : null}
+
+        {newAchievements.map((ach) => (
+          <motion.div
+            key={ach.id}
+            className="rounded-xl border border-brand-purple/30 bg-brand-light-lavender p-4"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <p className="font-sans text-sm font-semibold text-brand-purple">
+              🏅 Achievement Unlocked!
+            </p>
+            <p className="font-sans text-base font-bold text-brand-dark">
+              {ach.label}
+            </p>
+            <p className="font-body text-xs text-brand-dark-gray">
+              {ach.description}
+            </p>
+          </motion.div>
+        ))}
 
         {saveError ? (
           <p className="font-body text-sm text-brand-accent">

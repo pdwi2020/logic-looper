@@ -530,8 +530,10 @@
                   hover tooltips, and year selector
                 </li>
                 <li>
-                  4 achievement badges: Streak Week, Streak Month, Century, Perfect
-                  Month — with "Next badge to unlock" contextual hint
+                  4 achievement badges: Streak Week (7 days), Streak Month (30 days), Century
+                  (100 solves), Perfect Month — automatically granted on puzzle solve via
+                  <code>checkAchievements()</code> with deduplication against IndexedDB; unlock
+                  toast displayed inline on the result card
                 </li>
                 <li>
                   Leaderboard includes a dynamic "You" row derived from IndexedDB —
@@ -569,6 +571,17 @@
                   pulsing scale animation throughout
                 </li>
                 <li>Share Score button copies formatted result to clipboard</li>
+                <li>
+                  "Already solved today" guard: on mount, PuzzleContainer checks IndexedDB
+                  for today's record — if solved, shows score/time summary with "View Profile"
+                  CTA; if attempted (gave up), shows a distinct "Already attempted" panel;
+                  prevents duplicate submission
+                </li>
+                <li>
+                  Skeleton loaders on Profile (streak cards, achievement grid) and
+                  heatmap — <code>animate-pulse</code> placeholder shapes match content
+                  dimensions; no layout shift on data load
+                </li>
               </ul>
             </div>
             <div class="mini-panel">
