@@ -26,6 +26,9 @@ const isRecentlyUnlocked = (achievement: Achievement): boolean => {
 export default function Profile() {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [totalSolved, setTotalSolved] = useState<number>(0);
+  const [avgScore, setAvgScore] = useState<number>(0);
+  const [bestScore, setBestScore] = useState<number>(0);
+  const [totalTimeMins, setTotalTimeMins] = useState<number>(0);
   const [isLoadingAchievements, setIsLoadingAchievements] =
     useState<boolean>(true);
   const {
@@ -52,7 +55,13 @@ export default function Profile() {
         }
 
         setAchievements(savedAchievements);
-        setTotalSolved(activities.filter((activity) => activity.solved).length);
+        const solved = activities.filter((a) => a.solved);
+        setTotalSolved(solved.length);
+        if (solved.length > 0) {
+          setBestScore(Math.max(...solved.map((a) => a.score)));
+          setAvgScore(Math.round(solved.reduce((s, a) => s + a.score, 0) / solved.length));
+        }
+        setTotalTimeMins(Math.round(activities.reduce((s, a) => s + a.timeTaken, 0) / 60));
       } finally {
         if (isMounted) {
           setIsLoadingAchievements(false);
@@ -160,6 +169,36 @@ export default function Profile() {
           )}
         </Card>
       </motion.section>
+
+      {totalSolved > 0 && (
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.38, ease: 'easeOut' }}
+        >
+          <Card title="Stats at a Glance" variant="default">
+            <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {[
+                { label: 'Puzzles Solved', value: totalSolved.toString() },
+                { label: 'Best Score', value: bestScore > 0 ? bestScore.toLocaleString() : '—' },
+                { label: 'Avg Score', value: avgScore > 0 ? avgScore.toLocaleString() : '—' },
+                { label: 'Time Played', value: totalTimeMins > 0 ? `${totalTimeMins} min` : '—' },
+              ].map((stat) => (
+                <div
+                  key={stat.label}
+                  className="rounded-xl bg-brand-light-blue/30 px-3 py-3 text-center"
+                >
+                  <p className="font-sans text-2xl font-bold text-brand-blue">
+                    {stat.value}
+                  </p>
+                  <p className="mt-1 text-xs text-brand-dark-gray">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </motion.section>
+      )}
 
       <motion.section
         initial={{ opacity: 0, y: 20 }}

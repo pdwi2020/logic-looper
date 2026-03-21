@@ -1,9 +1,10 @@
-import { type ComponentType, lazy, Suspense, useState } from 'react';
+import { type ComponentType, lazy, Suspense, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { getDailyPuzzleConfig } from '@/engine/seedGenerator';
 
 const LazyPuzzleContainer = lazy(async () => {
   const module = await import('@/components/puzzle/PuzzleContainer');
@@ -56,8 +57,20 @@ export default function Home() {
   const [showPreview, setShowPreview] = useState<boolean>(false);
 
   const daysSinceEpoch = getDaysSinceEpoch();
-  // Day 1 = Jan 1 1970; offset to a user-friendly counter starting from ~Day 1
   const dayNumber = (daysSinceEpoch % 365) + 1;
+
+  const todayConfig = useMemo(() => {
+    const now = new Date();
+    const d = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    return getDailyPuzzleConfig(d);
+  }, []);
+
+  const puzzleTypeLabel =
+    todayConfig.puzzleType === 'number-matrix'
+      ? 'Number Matrix'
+      : todayConfig.puzzleType === 'sequence-solver'
+        ? 'Sequence Solver'
+        : 'Equation Puzzle';
 
   return (
     <div className="space-y-10">
@@ -74,6 +87,12 @@ export default function Home() {
         <h1 className="mt-3 font-sans text-3xl font-bold md:text-5xl">
           One puzzle. Every day. No retries.
         </h1>
+        <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-brand-light-sky/30 bg-brand-white/10 px-3 py-1 backdrop-blur-sm">
+          <span className="h-2 w-2 animate-pulse rounded-full bg-green-400" />
+          <span className="font-sans text-xs font-semibold text-brand-light-sky">
+            Today: {puzzleTypeLabel} · Level {todayConfig.difficulty}
+          </span>
+        </div>
         <p className="mt-4 max-w-2xl font-body text-base text-brand-light-sky md:text-lg">
           Solve one focused challenge each day, build your streak, and improve
           with every attempt.

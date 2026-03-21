@@ -1,11 +1,12 @@
 import '@/styles/globals.css';
 import { lazy, Suspense } from 'react';
 import { Provider } from 'react-redux';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import { MainLayout } from '@/components/layout/MainLayout';
 import Home from '@/pages/Home';
 import Leaderboard from '@/pages/Leaderboard';
+import NotFound from '@/pages/NotFound';
 import Profile from '@/pages/Profile';
 import Settings from '@/pages/Settings';
 import { store } from '@/store/store';
@@ -39,7 +40,7 @@ function App() {
             <Route path="profile" element={<Profile />} />
             <Route path="leaderboard" element={<Leaderboard />} />
             <Route path="settings" element={<Settings />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
       </BrowserRouter>

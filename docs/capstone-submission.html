@@ -502,7 +502,10 @@
             <div class="mini-panel">
               <h3>Core Product Surface</h3>
               <ul class="list">
-                <li>5 pages: Home, Puzzle Arena, Profile, Leaderboard, Settings — all reachable from header nav and footer</li>
+                <li>5 pages: Home, Puzzle Arena, Profile, Leaderboard, Settings — all reachable from header, footer, and mobile bottom nav</li>
+                <li>Mobile bottom navigation bar (fixed, icon+label, active indicator) — LinkedIn-style tab bar hidden on desktop</li>
+                <li>Smooth page transition animations (AnimatePresence fade+slide between routes)</li>
+                <li>Dedicated 404 page with branded design and "Play Today's Puzzle" recovery CTA</li>
                 <li>3 puzzle types: Number Matrix, Sequence Solver, Equation Puzzle — rotating daily via 3-day modular cycle</li>
                 <li>
                   3 difficulty levels each, scaling dynamically every 122 days
@@ -510,6 +513,7 @@
                 </li>
                 <li>Mobile-first layout: sticky timer, full-width buttons, horizontal sequence scroll</li>
                 <li>Dark mode toggle in Settings — persisted to localStorage, applied on startup with no flash</li>
+                <li>Home hero shows today's active puzzle type and difficulty level via a live badge (reads from the seed engine)</li>
                 <li>Smooth animations throughout via Framer Motion</li>
               </ul>
             </div>
@@ -533,6 +537,7 @@
                   Leaderboard includes a dynamic "You" row derived from IndexedDB —
                   ranked by best score with computed streak and level
                 </li>
+                <li>Profile "Stats at a Glance" panel — puzzles solved, best score, avg score, total time played computed live from IndexedDB</li>
               </ul>
             </div>
           </div>
