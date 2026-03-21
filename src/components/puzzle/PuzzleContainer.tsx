@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { saveActivity } from '@/db/operations';
 import { generateDailyPuzzle, validatePuzzleAnswer } from '@/engine';
+import type { PuzzleType } from '@/engine';
 import type { NumberMatrixPuzzle } from '@/engine/puzzles/numberMatrix';
 import { puzzleCompleted } from '@/store/slices';
 import type { AppDispatch } from '@/store/store';
@@ -38,6 +39,12 @@ function calculateScore(timeTaken: number, difficulty: number): number {
   return Math.round(timeFactor * diffMultiplier);
 }
 
+const winMessages: Record<PuzzleType, string> = {
+  'number-matrix': 'Sharp eye for patterns — the grid was no match.',
+  'sequence-solver': 'You cracked the rule. Clean logical thinking.',
+  'equation-puzzle': 'Excellent algebraic reasoning. Textbook solve.',
+};
+
 export function PuzzleContainer() {
   const dispatch = useDispatch<AppDispatch>();
   const dailyPuzzle = useMemo(() => generateDailyPuzzle(), []);
@@ -45,10 +52,12 @@ export function PuzzleContainer() {
 
   const [userAnswer, setUserAnswer] = useState('');
   const [isComplete, setIsComplete] = useState(false);
+  const [isGivenUp, setIsGivenUp] = useState(false);
   const [score, setScore] = useState(0);
   const [timeTaken, setTimeTaken] = useState(0);
   const [showResult, setShowResult] = useState(false);
   const [showTryAgain, setShowTryAgain] = useState(false);
+  const [wrongCount, setWrongCount] = useState(0);
   // hintLevel: 0 = none, 1/2/3 = progressive hints (matrix supports 3; others support 1)
   const [hintLevel, setHintLevel] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
@@ -58,6 +67,7 @@ export function PuzzleContainer() {
   const maxHintLevel = type === 'number-matrix' ? 3 : 1;
   const hintPenalty = hintLevel * 10;
   const showHint = hintLevel > 0;
+  const canGiveUp = wrongCount >= 3 && !isComplete && !isGivenUp;
 
   const today = useMemo(() => {
     const now = new Date();
@@ -81,13 +91,14 @@ export function PuzzleContainer() {
   }, [maxHintLevel]);
 
   const handleSubmit = useCallback(async () => {
-    if (isComplete || isSaving) {
+    if (isComplete || isSaving || isGivenUp) {
       return;
     }
 
     const numericAnswer = Number(userAnswer.trim());
     if (!Number.isFinite(numericAnswer)) {
       setShowTryAgain(true);
+      setWrongCount((c) => c + 1);
       return;
     }
 
@@ -95,6 +106,7 @@ export function PuzzleContainer() {
 
     if (!isCorrect) {
       setShowTryAgain(true);
+      setWrongCount((c) => c + 1);
       return;
     }
 
@@ -133,6 +145,7 @@ export function PuzzleContainer() {
     dispatch,
     hintLevel,
     isComplete,
+    isGivenUp,
     isSaving,
     puzzle,
     timeTaken,
@@ -140,6 +153,37 @@ export function PuzzleContainer() {
     type,
     userAnswer,
   ]);
+
+  const handleGiveUp = useCallback(async () => {
+    setIsGivenUp(true);
+    setIsComplete(true);
+    setShowTryAgain(false);
+    setIsSaving(true);
+
+    try {
+      await saveActivity({
+        date: today,
+        solved: false,
+        score: 0,
+        timeTaken,
+        difficulty: puzzle.difficulty,
+        synced: false,
+      });
+    } catch {
+      // non-critical — don't surface save error on give-up
+    } finally {
+      setIsSaving(false);
+    }
+  }, [puzzle.difficulty, timeTaken, today]);
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+        void handleSubmit();
+      }
+    },
+    [handleSubmit],
+  );
 
   const handleShareScore = useCallback(() => {
     const dayNumber = (Math.floor(Date.now() / 86_400_000) % 365) + 1;
@@ -163,8 +207,8 @@ export function PuzzleContainer() {
   }, [showHint, type, puzzle, hintLevel]);
 
   const submitDisabled =
-    userAnswer.trim().length === 0 || isComplete || isSaving;
-  const hintDisabled = hintLevel >= maxHintLevel || isComplete;
+    userAnswer.trim().length === 0 || isComplete || isSaving || isGivenUp;
+  const hintDisabled = hintLevel >= maxHintLevel || isComplete || isGivenUp;
 
   const puzzleTitle =
     type === 'number-matrix'
@@ -204,6 +248,7 @@ export function PuzzleContainer() {
             missingCell={puzzle.missingCell}
             userAnswer={userAnswer}
             onAnswerChange={handleAnswerChange}
+            onKeyDown={handleKeyDown}
           />
         ) : type === 'sequence-solver' && 'sequence' in puzzle ? (
           <div className="space-y-2">
@@ -217,6 +262,7 @@ export function PuzzleContainer() {
               sequence={puzzle.sequence}
               userAnswer={userAnswer}
               onAnswerChange={handleAnswerChange}
+              onKeyDown={handleKeyDown}
             />
           </div>
         ) : type === 'equation-puzzle' && 'equation' in puzzle ? (
@@ -224,6 +270,7 @@ export function PuzzleContainer() {
             equation={puzzle.equation}
             userAnswer={userAnswer}
             onAnswerChange={handleAnswerChange}
+            onKeyDown={handleKeyDown}
           />
         ) : null}
 
@@ -244,6 +291,15 @@ export function PuzzleContainer() {
           >
             {isSaving ? 'Saving...' : 'Submit'}
           </Button>
+          {canGiveUp ? (
+            <Button
+              variant="ghost"
+              onClick={() => void handleGiveUp()}
+              className="min-h-[2.75rem] w-full text-brand-dark-gray sm:w-auto"
+            >
+              Give Up
+            </Button>
+          ) : null}
         </div>
 
         {showHint ? (
@@ -270,8 +326,27 @@ export function PuzzleContainer() {
             animate={{ opacity: 1, x: [0, -8, 8, -6, 6, 0] }}
             transition={{ duration: 0.4 }}
           >
-            Try again
+            {wrongCount >= 3
+              ? `Try again — or use "Give Up" to see the answer.`
+              : 'Try again'}
           </motion.p>
+        ) : null}
+
+        {isGivenUp ? (
+          <motion.div
+            className="rounded-xl border border-brand-dark-gray/20 bg-brand-light-gray p-4"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25 }}
+          >
+            <p className="font-sans text-base font-semibold text-brand-dark-gray">
+              The answer was{' '}
+              <span className="font-bold text-brand-dark">{puzzle.answer}</span>
+            </p>
+            <p className="mt-1 font-body text-xs text-brand-dark-gray">
+              Better luck tomorrow — a new puzzle resets at midnight.
+            </p>
+          </motion.div>
         ) : null}
 
         {showResult ? (
@@ -310,7 +385,7 @@ export function PuzzleContainer() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
             >
-              Great focus and pattern recognition.
+              {winMessages[type]}
             </motion.p>
 
             <motion.div

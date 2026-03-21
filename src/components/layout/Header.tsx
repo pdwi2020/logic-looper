@@ -12,6 +12,7 @@ const navItems: NavItem[] = [
   { label: 'Play', to: '/puzzle' },
   { label: 'Profile', to: '/profile' },
   { label: 'Leaderboard', to: '/leaderboard' },
+  { label: 'Settings', to: '/settings' },
 ];
 
 const isActiveRoute = (pathname: string, to: string): boolean => {

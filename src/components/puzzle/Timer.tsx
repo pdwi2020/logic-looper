@@ -63,6 +63,12 @@ export function Timer({ isRunning, onTimeUpdate }: TimerProps) {
 
   const timerLabel = useMemo(() => formatTimer(seconds), [seconds]);
   const shouldPulse = seconds > 60;
+  const timeColor =
+    seconds > 90
+      ? 'text-brand-accent'
+      : seconds > 60
+        ? 'text-amber-500'
+        : 'text-brand-dark';
 
   return (
     <motion.div
@@ -77,7 +83,7 @@ export function Timer({ isRunning, onTimeUpdate }: TimerProps) {
       <p className="font-sans text-xs font-semibold uppercase tracking-[0.15em] text-brand-dark-gray">
         Time
       </p>
-      <p className="font-mono text-2xl font-bold text-brand-dark">
+      <p className={`font-mono text-2xl font-bold transition-colors ${timeColor}`}>
         {timerLabel}
       </p>
     </motion.div>

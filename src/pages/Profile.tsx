@@ -77,9 +77,34 @@ export default function Profile() {
     [achievements],
   );
 
+  const motivationalMessage = isStreakLoading
+    ? null
+    : currentStreak >= 30
+      ? `🏆 Legendary! ${currentStreak}-day streak. You're unstoppable.`
+      : currentStreak >= 7
+        ? `🔥 You're on fire! ${currentStreak}-day streak. Keep the chain alive.`
+        : currentStreak >= 3
+          ? `⚡ Building momentum — ${currentStreak} days and counting!`
+          : currentStreak === 1
+            ? '✅ First step taken. Come back tomorrow to build your streak.'
+            : '👋 No streak yet. Play today\'s puzzle to start your journey.';
+
   return (
     <div className="space-y-8">
       <GuestMode />
+
+      {motivationalMessage ? (
+        <motion.div
+          className="rounded-2xl bg-brand-night px-5 py-4 text-brand-white"
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, ease: 'easeOut' }}
+        >
+          <p className="font-sans text-base font-semibold">
+            {motivationalMessage}
+          </p>
+        </motion.div>
+      ) : null}
 
       <motion.section
         initial={{ opacity: 0, y: 20 }}
@@ -157,18 +182,34 @@ export default function Profile() {
               Loading achievements...
             </p>
           ) : sortedAchievements.length === 0 ? (
-            <p className="mt-2 text-sm text-brand-dark-gray">
-              No badges unlocked yet. Complete puzzles daily to unlock rewards.
-            </p>
+            <div className="mt-2 space-y-3">
+              <p className="text-sm text-brand-dark-gray">
+                No badges unlocked yet. Complete puzzles daily to unlock rewards.
+              </p>
+              <div className="rounded-lg border border-brand-light-periwinkle bg-brand-light-lavender px-3 py-2 text-xs text-brand-dark-gray">
+                <span className="font-semibold text-brand-purple">Next up:</span>{' '}
+                Solve your first puzzle to earn the{' '}
+                <span className="font-semibold">⭐ First Solve</span> badge.
+              </div>
+            </div>
           ) : (
-            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {sortedAchievements.map((achievement) => (
-                <AchievementBadge
-                  key={achievement.id}
-                  achievement={achievement}
-                  isNew={isRecentlyUnlocked(achievement)}
-                />
-              ))}
+            <div className="mt-4 space-y-4">
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {sortedAchievements.map((achievement) => (
+                  <AchievementBadge
+                    key={achievement.id}
+                    achievement={achievement}
+                    isNew={isRecentlyUnlocked(achievement)}
+                  />
+                ))}
+              </div>
+              {currentStreak < 7 && (
+                <div className="rounded-lg border border-brand-light-periwinkle bg-brand-light-lavender px-3 py-2 text-xs text-brand-dark-gray">
+                  <span className="font-semibold text-brand-purple">Next up:</span>{' '}
+                  Solve 7 days in a row to unlock the{' '}
+                  <span className="font-semibold">🔥 Week Warrior</span> badge.
+                </div>
+              )}
             </div>
           )}
         </Card>

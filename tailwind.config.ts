@@ -3,6 +3,7 @@ import { brandGradients, colors, fonts } from './src/config/brand'
 
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {

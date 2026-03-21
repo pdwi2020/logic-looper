@@ -41,4 +41,57 @@ html {
     color: var(--color-primary);
     font-family: var(--font-primary);
   }
+
+  /* Dark mode — applied via document.documentElement.classList.add('dark') */
+  .dark body {
+    background-color: #0f0f23;
+    color: #e0e0f0;
+  }
+
+  .dark h1,
+  .dark h2,
+  .dark h3,
+  .dark h4,
+  .dark h5,
+  .dark h6 {
+    color: #e0e0f0;
+  }
+}
+
+/* Dark mode surface overrides — targets Tailwind utility classes used in Card and page backgrounds */
+.dark .bg-brand-white {
+  background-color: #1a1a2e !important;
+}
+
+.dark .bg-brand-light-gray {
+  background-color: #0f0f23 !important;
+}
+
+.dark .bg-brand-light-blue\/45,
+.dark .bg-brand-light-blue\/20,
+.dark [class*='bg-brand-light-blue'] {
+  background-color: #1e2a40 !important;
+}
+
+.dark .bg-brand-light-lavender,
+.dark [class*='bg-brand-light-lavender'] {
+  background-color: #2d2540 !important;
+}
+
+.dark .bg-brand-light-sky\/25,
+.dark .bg-brand-light-sky\/35,
+.dark [class*='bg-brand-light-sky'] {
+  background-color: #1c3347 !important;
+}
+
+.dark .text-brand-dark {
+  color: #e0e0f0 !important;
+}
+
+.dark .text-brand-dark-gray {
+  color: #a0a8b8 !important;
+}
+
+.dark .border-brand-light-steel {
+  border-color: #2a3050 !important;
 }

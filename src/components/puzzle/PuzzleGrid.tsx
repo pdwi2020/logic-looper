@@ -3,6 +3,7 @@ export interface PuzzleGridProps {
   missingCell: { row: number; col: number };
   userAnswer: string;
   onAnswerChange: (value: string) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
 export function PuzzleGrid({
@@ -10,6 +11,7 @@ export function PuzzleGrid({
   missingCell,
   userAnswer,
   onAnswerChange,
+  onKeyDown,
 }: PuzzleGridProps) {
   const columnCount = grid[0]?.length ?? 1;
 
@@ -49,6 +51,8 @@ export function PuzzleGrid({
                     inputMode="numeric"
                     value={userAnswer}
                     onChange={(event) => onAnswerChange(event.target.value)}
+                    onKeyDown={onKeyDown}
+                    autoFocus
                     className="h-12 w-full max-w-[5rem] rounded-md border border-brand-blue/40 bg-brand-white px-2 text-center font-mono text-xl text-brand-dark outline-none transition-colors focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/30 sm:h-10 sm:text-lg"
                     placeholder="?"
                   />

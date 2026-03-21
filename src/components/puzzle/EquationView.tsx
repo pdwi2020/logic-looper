@@ -4,12 +4,14 @@ export interface EquationViewProps {
   equation: string;
   userAnswer: string;
   onAnswerChange: (value: string) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
 export function EquationView({
   equation,
   userAnswer,
   onAnswerChange,
+  onKeyDown,
 }: EquationViewProps) {
   // Split on '?' — each gap between parts needs a value box
   const parts = equation.split('?');
@@ -43,6 +45,8 @@ export function EquationView({
                   inputMode="numeric"
                   value={userAnswer}
                   onChange={(event) => onAnswerChange(event.target.value)}
+                  onKeyDown={onKeyDown}
+                  autoFocus
                   className="mx-1 h-12 w-20 rounded-md border-2 border-brand-blue/60 bg-brand-white px-2 text-center font-mono text-2xl font-bold text-brand-dark outline-none transition-colors focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/30 sm:h-14 sm:w-24 sm:text-3xl"
                   placeholder="?"
                 />

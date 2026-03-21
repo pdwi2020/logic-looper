@@ -11,8 +11,19 @@ import {
 
 type ThemeMode = 'light' | 'dark';
 
+function applyTheme(mode: ThemeMode) {
+  if (mode === 'dark') {
+    document.documentElement.classList.add('dark');
+  } else {
+    document.documentElement.classList.remove('dark');
+  }
+  localStorage.setItem('theme', mode);
+}
+
 export default function Settings() {
-  const [themeMode, setThemeMode] = useState<ThemeMode>('light');
+  const [themeMode, setThemeMode] = useState<ThemeMode>(
+    () => (localStorage.getItem('theme') as ThemeMode | null) ?? 'light',
+  );
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [isStatusError, setIsStatusError] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
@@ -87,8 +98,8 @@ export default function Settings() {
       >
         <Card title="Theme" variant="default">
           <p className="text-sm text-brand-dark-gray">
-            Theme switching is currently a placeholder. Choose your preferred
-            mode for future personalization.
+            Choose your preferred display mode. Your selection is saved locally
+            and applied on every visit.
           </p>
 
           <div className="mt-4 flex flex-wrap gap-3">
@@ -97,6 +108,7 @@ export default function Settings() {
               size="sm"
               onClick={() => {
                 setThemeMode('light');
+                applyTheme('light');
               }}
             >
               Light
@@ -106,6 +118,7 @@ export default function Settings() {
               size="sm"
               onClick={() => {
                 setThemeMode('dark');
+                applyTheme('dark');
               }}
             >
               Dark

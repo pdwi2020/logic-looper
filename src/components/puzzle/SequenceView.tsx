@@ -5,6 +5,7 @@ export interface SequenceViewProps {
   sequence: (number | null)[];
   userAnswer: string;
   onAnswerChange: (value: string) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
 const containerVariants = {
@@ -27,6 +28,7 @@ export function SequenceView({
   sequence,
   userAnswer,
   onAnswerChange,
+  onKeyDown,
 }: SequenceViewProps) {
   return (
     <div className="space-y-3">
@@ -55,6 +57,8 @@ export function SequenceView({
                     inputMode="numeric"
                     value={userAnswer}
                     onChange={(event) => onAnswerChange(event.target.value)}
+                    onKeyDown={onKeyDown}
+                    autoFocus
                     className="h-10 w-16 rounded-md border border-brand-blue/40 bg-brand-white px-2 text-center font-mono text-base text-brand-dark outline-none transition-colors focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/30 sm:h-8"
                     placeholder="?"
                   />
