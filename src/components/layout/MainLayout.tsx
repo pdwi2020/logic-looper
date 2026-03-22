@@ -37,7 +37,7 @@ export function MainLayout() {
       <Header />
       <main className="w-full flex-1 overflow-hidden px-4 py-8 pb-24 sm:px-6 md:pb-8 lg:px-8">
         <div className="mx-auto w-full max-w-6xl">
-          <AnimatePresence mode="wait" initial={false} custom={direction}>
+          <AnimatePresence mode="sync" initial={false} custom={direction}>
             <motion.div
               key={location.pathname}
               custom={direction}
