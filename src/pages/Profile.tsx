@@ -60,9 +60,13 @@ export default function Profile() {
         setTotalSolved(solved.length);
         if (solved.length > 0) {
           setBestScore(Math.max(...solved.map((a) => a.score)));
-          setAvgScore(Math.round(solved.reduce((s, a) => s + a.score, 0) / solved.length));
+          setAvgScore(
+            Math.round(solved.reduce((s, a) => s + a.score, 0) / solved.length),
+          );
         }
-        setTotalTimeMins(Math.round(activities.reduce((s, a) => s + a.timeTaken, 0) / 60));
+        setTotalTimeMins(
+          Math.round(activities.reduce((s, a) => s + a.timeTaken, 0) / 60),
+        );
       } finally {
         if (isMounted) {
           setIsLoadingAchievements(false);
@@ -97,7 +101,7 @@ export default function Profile() {
           ? `⚡ Building momentum — ${currentStreak} days and counting!`
           : currentStreak === 1
             ? '✅ First step taken. Come back tomorrow to build your streak.'
-            : '👋 No streak yet. Play today\'s puzzle to start your journey.';
+            : "👋 No streak yet. Play today's puzzle to start your journey.";
 
   return (
     <div className="space-y-8">
@@ -105,14 +109,20 @@ export default function Profile() {
 
       {motivationalMessage ? (
         <motion.div
-          className="rounded-2xl bg-brand-night px-5 py-4 text-brand-white"
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, ease: 'easeOut' }}
         >
-          <p className="font-sans text-base font-semibold">
-            {motivationalMessage}
-          </p>
+          <div
+            className="rounded-2xl p-[1px]"
+            style={{ background: 'linear-gradient(135deg, #6C63FF, #3B82F6)' }}
+          >
+            <div className="rounded-2xl bg-brand-night px-5 py-4">
+              <p className="font-sans text-base font-semibold text-brand-white">
+                {motivationalMessage}
+              </p>
+            </div>
+          </div>
         </motion.div>
       ) : null}
 
@@ -128,11 +138,11 @@ export default function Profile() {
         >
           {isStreakLoading ? (
             <>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2 animate-pulse">
+              <div className="mt-4 grid gap-3 sm:grid-cols-2 animate-shimmer">
                 <div className="rounded-xl bg-brand-light-blue/45 p-4 h-24" />
                 <div className="rounded-xl bg-brand-light-lavender p-4 h-24" />
               </div>
-              <div className="mt-4 h-12 rounded-xl bg-brand-light-blue/20 animate-pulse" />
+              <div className="mt-4 h-12 rounded-xl bg-brand-light-blue/20 animate-shimmer" />
             </>
           ) : (
             <>
@@ -183,30 +193,94 @@ export default function Profile() {
           transition={{ duration: 0.38, ease: 'easeOut' }}
         >
           <Card title="Stats at a Glance" variant="default">
-            <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
-              {[
-                { label: 'Puzzles Solved', value: totalSolved.toString(), numericValue: totalSolved },
-                { label: 'Best Score', value: bestScore > 0 ? bestScore.toLocaleString() : '—', numericValue: bestScore },
-                { label: 'Avg Score', value: avgScore > 0 ? avgScore.toLocaleString() : '—', numericValue: avgScore },
-                { label: 'Time Played', value: totalTimeMins > 0 ? `${totalTimeMins} min` : null, numericValue: totalTimeMins },
-              ].map((stat, index) => (
+            <div className="mt-3 grid grid-cols-2 gap-3">
+              <div className="col-span-2">
                 <div
-                  key={stat.label}
-                  className="rounded-xl bg-brand-light-blue/30 px-3 py-3 text-center"
+                  className="rounded-xl p-[1px]"
+                  style={{
+                    background: 'linear-gradient(135deg, #6C63FF, #3B82F6)',
+                  }}
                 >
-                  <p className="font-sans text-2xl font-bold text-brand-blue">
-                    {stat.numericValue > 0 ? (
-                      <CountUp value={stat.numericValue} delay={index * 0.1} />
-                    ) : (
-                      '—'
-                    )}
-                    {stat.label === 'Time Played' && stat.numericValue > 0 ? (
-                      <span className="ml-1 text-lg"> min</span>
-                    ) : null}
-                  </p>
-                  <p className="mt-1 text-xs text-brand-dark-gray">{stat.label}</p>
+                  <div className="rounded-xl bg-brand-white dark:bg-[#1a1a2e] px-4 py-4 text-center">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-brand-dark-gray">
+                      Best Score
+                    </p>
+                    <p className="mt-1 font-sans text-3xl font-bold text-brand-blue">
+                      {bestScore > 0 ? (
+                        <CountUp value={bestScore} delay={0} />
+                      ) : (
+                        '—'
+                      )}
+                    </p>
+                  </div>
                 </div>
-              ))}
+              </div>
+              <div>
+                <div
+                  className="rounded-xl p-[1px]"
+                  style={{
+                    background: 'linear-gradient(135deg, #6C63FF, #3B82F6)',
+                  }}
+                >
+                  <div className="rounded-xl bg-brand-white dark:bg-[#1a1a2e] px-3 py-3 text-center">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-brand-dark-gray">
+                      Puzzles Solved
+                    </p>
+                    <p className="mt-1 font-sans text-2xl font-bold text-brand-blue">
+                      {totalSolved > 0 ? (
+                        <CountUp value={totalSolved} delay={0.1} />
+                      ) : (
+                        '—'
+                      )}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div
+                  className="rounded-xl p-[1px]"
+                  style={{
+                    background: 'linear-gradient(135deg, #6C63FF, #3B82F6)',
+                  }}
+                >
+                  <div className="rounded-xl bg-brand-white dark:bg-[#1a1a2e] px-3 py-3 text-center">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-brand-dark-gray">
+                      Avg Score
+                    </p>
+                    <p className="mt-1 font-sans text-2xl font-bold text-brand-blue">
+                      {avgScore > 0 ? (
+                        <CountUp value={avgScore} delay={0.2} />
+                      ) : (
+                        '—'
+                      )}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="col-span-2">
+                <div
+                  className="rounded-xl p-[1px]"
+                  style={{
+                    background: 'linear-gradient(135deg, #6C63FF, #3B82F6)',
+                  }}
+                >
+                  <div className="rounded-xl bg-brand-white dark:bg-[#1a1a2e] px-4 py-3 text-center">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-brand-dark-gray">
+                      Time Played
+                    </p>
+                    <p className="mt-1 font-sans text-2xl font-bold text-brand-blue">
+                      {totalTimeMins > 0 ? (
+                        <>
+                          <CountUp value={totalTimeMins} delay={0.3} />
+                          <span className="ml-1 text-lg"> min</span>
+                        </>
+                      ) : (
+                        '—'
+                      )}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </Card>
         </motion.section>
@@ -229,18 +303,24 @@ export default function Profile() {
       >
         <Card title="Achievement Badges" variant="default">
           {isLoadingAchievements ? (
-            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 animate-pulse">
-              {[0, 1, 2].map(i => (
-                <div key={i} className="h-20 rounded-xl bg-brand-light-blue/30" />
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 animate-shimmer">
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  className="h-20 rounded-xl bg-brand-light-blue/30"
+                />
               ))}
             </div>
           ) : sortedAchievements.length === 0 ? (
             <div className="mt-2 space-y-3">
               <p className="text-sm text-brand-dark-gray">
-                No badges unlocked yet. Complete puzzles daily to unlock rewards.
+                No badges unlocked yet. Complete puzzles daily to unlock
+                rewards.
               </p>
               <div className="rounded-lg border border-brand-light-periwinkle bg-brand-light-lavender px-3 py-2 text-xs text-brand-dark-gray">
-                <span className="font-semibold text-brand-purple">Next up:</span>{' '}
+                <span className="font-semibold text-brand-purple">
+                  Next up:
+                </span>{' '}
                 Solve your first puzzle to earn the{' '}
                 <span className="font-semibold">⭐ First Solve</span> badge.
               </div>
@@ -258,7 +338,9 @@ export default function Profile() {
               </div>
               {currentStreak < 7 && (
                 <div className="rounded-lg border border-brand-light-periwinkle bg-brand-light-lavender px-3 py-2 text-xs text-brand-dark-gray">
-                  <span className="font-semibold text-brand-purple">Next up:</span>{' '}
+                  <span className="font-semibold text-brand-purple">
+                    Next up:
+                  </span>{' '}
                   Solve 7 days in a row to unlock the{' '}
                   <span className="font-semibold">🔥 Week Warrior</span> badge.
                 </div>

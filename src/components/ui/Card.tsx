@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { motion } from 'framer-motion';
 
-export type CardVariant = 'default' | 'elevated' | 'outlined';
+export type CardVariant = 'default' | 'elevated' | 'outlined' | 'glass';
 
 export interface CardProps {
   title: string;
@@ -17,6 +17,8 @@ const variantClasses: Record<CardVariant, string> = {
     'border border-brand-light-blue bg-brand-white shadow-lg shadow-brand-blue/20',
   outlined:
     'border-2 border-brand-purple/40 bg-brand-light-lavender shadow-sm shadow-brand-purple/10',
+  glass:
+    'border border-white/20 bg-white/10 shadow-lg shadow-black/10 backdrop-blur-md',
 };
 
 const joinClasses = (...classes: Array<string | undefined>): string =>

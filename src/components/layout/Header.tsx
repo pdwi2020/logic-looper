@@ -32,7 +32,7 @@ export function Header() {
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
         <Link
           to="/"
-          className="font-sans text-2xl font-bold tracking-tight text-brand-blue"
+          className="font-display text-2xl font-bold tracking-tight text-brand-blue"
         >
           Logic Looper
         </Link>

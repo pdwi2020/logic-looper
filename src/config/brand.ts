@@ -19,6 +19,7 @@ export type ColorToken = keyof typeof colors;
 export const fonts = {
   primary: 'Poppins',
   secondary: 'Open Sans',
+  display: 'Space Grotesk',
 } as const;
 
 export type FontToken = keyof typeof fonts;

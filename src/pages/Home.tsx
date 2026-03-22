@@ -75,7 +75,7 @@ export default function Home() {
   return (
     <div className="space-y-10">
       <motion.section
-        className="rounded-3xl bg-brand-hero px-6 py-10 text-brand-white shadow-lg shadow-brand-blue/20 md:px-10"
+        className="noise-overlay rounded-3xl bg-brand-hero px-6 py-10 text-brand-white shadow-lg shadow-brand-blue/20 md:px-10"
         initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.3 }}
@@ -84,7 +84,7 @@ export default function Home() {
         <p className="font-sans text-xs font-semibold uppercase tracking-[0.24em] text-brand-light-blue">
           Logic Looper &mdash; Day {dayNumber}
         </p>
-        <h1 className="mt-3 font-sans text-3xl font-bold md:text-5xl">
+        <h1 className="animated-gradient-text mt-3 font-display text-3xl font-bold md:text-5xl">
           One puzzle. Every day. No retries.
         </h1>
         <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-brand-light-sky/30 bg-brand-white/10 px-3 py-1 backdrop-blur-sm">
@@ -132,16 +132,22 @@ export default function Home() {
         <h2 className="font-sans text-2xl font-semibold text-brand-dark">
           Core Features
         </h2>
-        <div className="grid gap-4 md:grid-cols-3">
-          {features.map((feature) => (
-            <Card
-              key={feature.title}
-              title={feature.title}
-              variant={feature.variant}
-            >
-              {feature.description}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-5">
+          <div className="sm:col-span-2 md:col-span-3 md:row-span-2">
+            <Card title={features[0].title} variant={features[0].variant} className="h-full">
+              {features[0].description}
             </Card>
-          ))}
+          </div>
+          <div className="md:col-span-2">
+            <Card title={features[1].title} variant={features[1].variant}>
+              {features[1].description}
+            </Card>
+          </div>
+          <div className="md:col-span-2">
+            <Card title={features[2].title} variant={features[2].variant}>
+              {features[2].description}
+            </Card>
+          </div>
         </div>
       </motion.section>
 

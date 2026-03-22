@@ -24,6 +24,7 @@ export default {
       fontFamily: {
         sans: [fonts.primary, 'sans-serif'],
         body: [fonts.secondary, 'sans-serif'],
+        display: ['Space Grotesk', 'sans-serif'],
       },
       backgroundImage: {
         'brand-hero': brandGradients.hero,

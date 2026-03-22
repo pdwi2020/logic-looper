@@ -101,7 +101,7 @@ export function HeatmapContainer() {
           </div>
 
           {isLoading ? (
-            <div className="mt-4 space-y-3 animate-pulse">
+            <div className="mt-4 space-y-3 animate-shimmer">
               <div className="h-5 w-36 rounded bg-brand-light-blue/40" />
               <div className="grid grid-cols-12 gap-1">
                 {Array.from({ length: 52 }).map((_, i) => (

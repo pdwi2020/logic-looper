@@ -4,6 +4,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
+import { CommandPalette } from '@/components/ui/CommandPalette';
 
 export function MainLayout() {
   const location = useLocation();
@@ -28,6 +29,7 @@ export function MainLayout() {
       </main>
       <Footer />
       <BottomNav />
+      <CommandPalette />
     </div>
   );
 }
