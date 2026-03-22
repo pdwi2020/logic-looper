@@ -60,6 +60,16 @@ export function EquationView({
           </span>
         ))}
       </motion.div>
+      <div className="space-y-1">
+        <p className="font-body text-xs text-brand-dark-gray">
+          Enter a whole number.
+        </p>
+        {parts.length >= 3 ? (
+          <p className="font-body text-xs text-brand-dark-gray">
+            Both unknowns represent the same value.
+          </p>
+        ) : null}
+      </div>
     </div>
   );
 }

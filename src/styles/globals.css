@@ -95,3 +95,26 @@ html {
 .dark .border-brand-light-steel {
   border-color: #2a3050 !important;
 }
+
+.dark .bg-brand-night {
+  background-color: #2d2d45 !important;
+}
+
+.dark .border-brand-light-blue,
+.dark [class*='border-brand-light-blue'] {
+  border-color: #1e2a40 !important;
+}
+
+.dark .border-brand-light-periwinkle,
+.dark [class*='border-brand-light-periwinkle'] {
+  border-color: #2a2040 !important;
+}
+
+.dark .bg-brand-light-steel,
+.dark [class*='bg-brand-light-steel'] {
+  background-color: #1e1e35 !important;
+}
+
+.dark .bg-brand-hero {
+  background: linear-gradient(135deg, #1a1a4e 0%, #0f0f3a 100%) !important;
+}

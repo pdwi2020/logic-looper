@@ -75,6 +75,7 @@ export function PuzzleContainer() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
   const [newAchievements, setNewAchievements] = useState<Achievement[]>([]);
   const [todayActivity, setTodayActivity] = useState<
     DailyActivity | null | undefined
@@ -139,6 +140,10 @@ export function PuzzleContainer() {
     setScore(finalScore);
     setIsComplete(true);
     setShowResult(true);
+    setShowConfetti(true);
+    setTimeout(() => {
+      setShowConfetti(false);
+    }, 1500);
     setShowTryAgain(false);
     setSaveError(null);
     setIsSaving(true);
@@ -356,6 +361,52 @@ export function PuzzleContainer() {
       className="mx-auto w-full max-w-3xl"
     >
       <div className="space-y-5">
+        {showConfetti ? (
+          <>
+            {[...Array(16)].map((_, i) => {
+              const colors = [
+                '#3B82F6',
+                '#7C3AED',
+                '#EF4444',
+                '#F59E0B',
+                '#10B981',
+                '#EC4899',
+              ];
+              const color = colors[i % colors.length];
+              const xEnd = (i % 2 === 0 ? 1 : -1) * (80 + (i * 23) % 140);
+              const yEnd = -120 - (i * 17) % 200;
+              const rotation = (i * 47) % 720;
+              return (
+                <motion.div
+                  key={i}
+                  style={{
+                    position: 'fixed',
+                    top: '50%',
+                    left: '50%',
+                    width: 8,
+                    height: 8,
+                    borderRadius: i % 2 === 0 ? '50%' : 2,
+                    backgroundColor: color,
+                    pointerEvents: 'none',
+                    zIndex: 9999,
+                  }}
+                  initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
+                  animate={{
+                    x: xEnd,
+                    y: yEnd,
+                    opacity: 0,
+                    scale: 0,
+                    rotate: rotation,
+                  }}
+                  transition={{
+                    duration: 0.9 + (i % 4) * 0.1,
+                    ease: 'easeOut',
+                  }}
+                />
+              );
+            })}
+          </>
+        ) : null}
         {/* Difficulty + Timer — sticky on mobile so it stays visible while scrolling */}
         <div className="sticky top-16 z-30 flex flex-col items-start justify-between gap-3 rounded-xl bg-brand-light-blue/95 p-3 backdrop-blur-sm sm:relative sm:top-auto sm:z-auto sm:flex-row sm:items-center sm:bg-brand-light-blue/20 sm:backdrop-blur-none">
           <div>
