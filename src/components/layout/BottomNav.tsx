@@ -1,3 +1,4 @@
+import { LayoutGroup, motion } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 
 interface NavItem {
@@ -55,32 +56,38 @@ export function BottomNav() {
       className="fixed bottom-0 left-0 right-0 z-40 border-t border-brand-light-blue/20 bg-brand-dark md:hidden"
       aria-label="Mobile navigation"
     >
-      <ul className="flex h-16 items-stretch">
-        {navItems.map((item) => {
-          const active = isActive(pathname, item.to);
-          return (
-            <li key={item.to} className="flex flex-1">
-              <Link
-                to={item.to}
-                className={`flex flex-1 flex-col items-center justify-center gap-0.5 text-[10px] font-semibold uppercase tracking-wide transition-colors ${
-                  active
-                    ? 'text-brand-blue'
-                    : 'text-brand-light-steel/70 hover:text-brand-light-sky'
-                }`}
-                aria-current={active ? 'page' : undefined}
-              >
-                <span className={`transition-transform ${active ? 'scale-110' : ''}`}>
-                  {item.icon}
-                </span>
-                {item.label}
-                {active && (
-                  <span className="absolute bottom-0 h-0.5 w-8 rounded-t-full bg-brand-blue" />
-                )}
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
+      <LayoutGroup>
+        <ul className="flex h-16 items-stretch">
+          {navItems.map((item) => {
+            const active = isActive(pathname, item.to);
+            return (
+              <li key={item.to} className="flex flex-1">
+                <Link
+                  to={item.to}
+                  onClick={() => { navigator.vibrate?.(5); }}
+                  className={`flex flex-1 flex-col items-center justify-center gap-0.5 text-[10px] font-semibold uppercase tracking-wide transition-colors ${
+                    active
+                      ? 'text-brand-blue'
+                      : 'text-brand-light-steel/70 hover:text-brand-light-sky'
+                  }`}
+                  aria-current={active ? 'page' : undefined}
+                >
+                  <span className={`transition-transform ${active ? 'scale-110' : ''}`}>
+                    {item.icon}
+                  </span>
+                  {item.label}
+                  {active && (
+                    <motion.span
+                      layoutId="nav-indicator"
+                      className="absolute bottom-0 h-0.5 w-8 rounded-t-full bg-brand-blue"
+                    />
+                  )}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </LayoutGroup>
     </nav>
   );
 }

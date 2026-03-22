@@ -5,6 +5,14 @@ import { Card } from '@/components/ui/Card';
 import { getAllActivities } from '@/db/operations';
 import type { DailyActivity } from '@/db/schemas';
 
+const tableVariants = {
+  visible: { transition: { staggerChildren: 0.04 } },
+};
+const rowVariants = {
+  hidden: { opacity: 0, x: -12 },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.25, ease: 'easeOut' as const } },
+};
+
 interface LeaderboardEntry {
   rank: number | '—';
   player: string;
@@ -138,10 +146,16 @@ export default function Leaderboard() {
                   <th className="px-3 py-2 font-semibold">Level</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-brand-light-gray">
+              <motion.tbody
+                className="divide-y divide-brand-light-gray"
+                initial="hidden"
+                animate="visible"
+                variants={tableVariants}
+              >
                 {rows.map((entry, index) =>
                   entry.isYou ? (
-                    <tr
+                    <motion.tr
+                      variants={rowVariants}
                       key="you"
                       className="bg-brand-blue/8 text-sm font-semibold text-brand-blue"
                     >
@@ -163,9 +177,9 @@ export default function Leaderboard() {
                         {entry.streak > 0 ? `${entry.streak} days` : '—'}
                       </td>
                       <td className="px-3 py-3">{entry.level}</td>
-                    </tr>
+                    </motion.tr>
                   ) : (
-                    <tr key={index} className="text-sm text-brand-dark">
+                    <motion.tr variants={rowVariants} key={index} className="text-sm text-brand-dark">
                       <td className="px-3 py-3 font-sans font-semibold text-brand-blue">
                         #{entry.rank}
                       </td>
@@ -175,10 +189,10 @@ export default function Leaderboard() {
                       </td>
                       <td className="px-3 py-3">{entry.streak} days</td>
                       <td className="px-3 py-3">{entry.level}</td>
-                    </tr>
+                    </motion.tr>
                   ),
                 )}
-              </tbody>
+              </motion.tbody>
             </table>
           </div>
 

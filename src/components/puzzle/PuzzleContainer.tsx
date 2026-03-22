@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useDispatch } from 'react-redux';
+import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
+import { CountUp } from '@/components/ui/CountUp';
+import { HintDrawer } from '@/components/puzzle/HintDrawer';
 
 import { PuzzleGrid } from '@/components/puzzle/PuzzleGrid';
 import { SequenceView } from '@/components/puzzle/SequenceView';
@@ -59,6 +63,7 @@ const winMessages: Record<PuzzleType, string> = {
 
 export function PuzzleContainer() {
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const dailyPuzzle = useMemo(() => generateDailyPuzzle(), []);
   const { puzzle, type } = dailyPuzzle;
 
@@ -77,6 +82,7 @@ export function PuzzleContainer() {
   const [copied, setCopied] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [newAchievements, setNewAchievements] = useState<Achievement[]>([]);
+  const [hintDrawerOpen, setHintDrawerOpen] = useState(false);
   const [todayActivity, setTodayActivity] = useState<
     DailyActivity | null | undefined
   >(undefined);
@@ -100,6 +106,22 @@ export function PuzzleContainer() {
     });
   }, [today]);
 
+  useEffect(() => {
+    if (newAchievements.length === 0) return;
+    newAchievements.forEach((ach, i) => {
+      setTimeout(() => {
+        toast.success(ach.label, {
+          description: ach.description,
+          duration: 4500,
+          action: {
+            label: 'View Profile',
+            onClick: (_event: React.MouseEvent<HTMLButtonElement>) => navigate('/profile'),
+          },
+        });
+      }, i * 500);
+    });
+  }, [newAchievements, navigate]);
+
   const handleTimeUpdate = useCallback((seconds: number) => {
     setTimeTaken(seconds);
   }, []);
@@ -110,7 +132,13 @@ export function PuzzleContainer() {
   }, []);
 
   const handleShowHint = useCallback(() => {
-    setHintLevel((prev) => Math.min(prev + 1, maxHintLevel));
+    setHintLevel((prev) => {
+      const next = Math.min(prev + 1, maxHintLevel);
+      if (next > prev) {
+        setHintDrawerOpen(true);
+      }
+      return next;
+    });
   }, [maxHintLevel]);
 
   const handleSubmit = useCallback(async () => {
@@ -122,6 +150,7 @@ export function PuzzleContainer() {
     if (!Number.isFinite(numericAnswer)) {
       setShowTryAgain(true);
       setWrongCount((c) => c + 1);
+      navigator.vibrate?.([10, 50, 10]);
       return;
     }
 
@@ -130,6 +159,7 @@ export function PuzzleContainer() {
     if (!isCorrect) {
       setShowTryAgain(true);
       setWrongCount((c) => c + 1);
+      navigator.vibrate?.([10, 50, 10]);
       return;
     }
 
@@ -141,6 +171,7 @@ export function PuzzleContainer() {
     setIsComplete(true);
     setShowResult(true);
     setShowConfetti(true);
+    navigator.vibrate?.(80);
     setTimeout(() => {
       setShowConfetti(false);
     }, 1500);
@@ -188,14 +219,11 @@ export function PuzzleContainer() {
     }
   }, [
     dispatch,
-    getAchievements,
-    getAllActivities,
     hintLevel,
     isComplete,
     isGivenUp,
     isSaving,
     puzzle,
-    saveAchievement,
     timeTaken,
     today,
     type,
@@ -481,20 +509,16 @@ export function PuzzleContainer() {
         </div>
 
         {showHint ? (
-          <motion.div
-            className="rounded-lg border border-brand-accent/30 bg-brand-light-lavender px-3 py-2"
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            {type === 'number-matrix' && hintLevel > 1 ? (
-              <p className="mb-1 font-sans text-xs font-semibold uppercase tracking-wide text-brand-dark-gray">
-                Hint {hintLevel} of 3
-              </p>
-            ) : null}
-            <p className="font-body text-sm text-brand-dark">
-              {currentHintText}
-            </p>
-          </motion.div>
+          <HintDrawer
+            open={hintDrawerOpen}
+            onClose={() => setHintDrawerOpen(false)}
+            hint={currentHintText}
+            hintLabelText={
+              type === 'number-matrix' && hintLevel > 1
+                ? `Hint ${hintLevel} of 3`
+                : 'Hint'
+            }
+          />
         ) : null}
 
         {showTryAgain ? (
@@ -544,7 +568,7 @@ export function PuzzleContainer() {
             </motion.p>
             <p className="mt-1 font-body text-sm text-brand-dark">
               Score:{' '}
-              <span className="font-semibold">{score}</span>
+              <span className="font-semibold"><CountUp value={score} /></span>
               {hintPenalty > 0 ? (
                 <span className="ml-1 text-brand-dark-gray">
                   (−{hintPenalty} hint penalty)
@@ -582,26 +606,6 @@ export function PuzzleContainer() {
             </motion.div>
           </motion.div>
         ) : null}
-
-        {newAchievements.map((ach) => (
-          <motion.div
-            key={ach.id}
-            className="rounded-xl border border-brand-purple/30 bg-brand-light-lavender p-4"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            <p className="font-sans text-sm font-semibold text-brand-purple">
-              🏅 Achievement Unlocked!
-            </p>
-            <p className="font-sans text-base font-bold text-brand-dark">
-              {ach.label}
-            </p>
-            <p className="font-body text-xs text-brand-dark-gray">
-              {ach.description}
-            </p>
-          </motion.div>
-        ))}
 
         {saveError ? (
           <p className="font-body text-sm text-brand-accent">

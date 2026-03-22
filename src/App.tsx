@@ -2,6 +2,7 @@ import '@/styles/globals.css';
 import { lazy, Suspense } from 'react';
 import { Provider } from 'react-redux';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { Toaster } from 'sonner';
 
 import { MainLayout } from '@/components/layout/MainLayout';
 import Home from '@/pages/Home';
@@ -44,6 +45,7 @@ function App() {
           </Route>
         </Routes>
       </BrowserRouter>
+      <Toaster position="top-center" richColors closeButton />
     </Provider>
   );
 }

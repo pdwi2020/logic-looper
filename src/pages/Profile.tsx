@@ -6,6 +6,7 @@ import { GuestMode } from '@/components/auth/GuestMode';
 import { HeatmapContainer } from '@/components/heatmap/HeatmapContainer';
 import { AchievementBadge } from '@/components/social/AchievementBadge';
 import { Card } from '@/components/ui/Card';
+import { CountUp } from '@/components/ui/CountUp';
 import { getAchievements, getAllActivities } from '@/db/operations';
 import type { Achievement } from '@/db/schemas';
 import { useStreak } from '@/hooks/useStreak';
@@ -184,17 +185,24 @@ export default function Profile() {
           <Card title="Stats at a Glance" variant="default">
             <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
               {[
-                { label: 'Puzzles Solved', value: totalSolved.toString() },
-                { label: 'Best Score', value: bestScore > 0 ? bestScore.toLocaleString() : '—' },
-                { label: 'Avg Score', value: avgScore > 0 ? avgScore.toLocaleString() : '—' },
-                { label: 'Time Played', value: totalTimeMins > 0 ? `${totalTimeMins} min` : '—' },
-              ].map((stat) => (
+                { label: 'Puzzles Solved', value: totalSolved.toString(), numericValue: totalSolved },
+                { label: 'Best Score', value: bestScore > 0 ? bestScore.toLocaleString() : '—', numericValue: bestScore },
+                { label: 'Avg Score', value: avgScore > 0 ? avgScore.toLocaleString() : '—', numericValue: avgScore },
+                { label: 'Time Played', value: totalTimeMins > 0 ? `${totalTimeMins} min` : null, numericValue: totalTimeMins },
+              ].map((stat, index) => (
                 <div
                   key={stat.label}
                   className="rounded-xl bg-brand-light-blue/30 px-3 py-3 text-center"
                 >
                   <p className="font-sans text-2xl font-bold text-brand-blue">
-                    {stat.value}
+                    {stat.numericValue > 0 ? (
+                      <CountUp value={stat.numericValue} delay={index * 0.1} />
+                    ) : (
+                      '—'
+                    )}
+                    {stat.label === 'Time Played' && stat.numericValue > 0 ? (
+                      <span className="ml-1 text-lg"> min</span>
+                    ) : null}
                   </p>
                   <p className="mt-1 text-xs text-brand-dark-gray">{stat.label}</p>
                 </div>
