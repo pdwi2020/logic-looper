@@ -53,10 +53,18 @@ export function getDailyPuzzleConfig(date: string): {
 } {
   const parsedDate = parseUtcDate(date);
   const seed = generateDailySeed(date);
-  const dayOfYear = getDayOfYear(parsedDate);
   const daysSinceEpoch = Math.floor(parsedDate.getTime() / MS_PER_DAY);
 
-  const difficulty = Math.min(3, Math.floor((dayOfYear - 1) / 122) + 1);
+  const DAY_OF_WEEK_DIFFICULTY: Record<number, number> = {
+    0: 2, // Sunday
+    1: 1, // Monday — easiest, builds habit
+    2: 1, // Tuesday
+    3: 2, // Wednesday — ramps up mid-week
+    4: 2, // Thursday
+    5: 3, // Friday — hardest for engaged users
+    6: 3, // Saturday
+  };
+  const difficulty = DAY_OF_WEEK_DIFFICULTY[parsedDate.getUTCDay()] ?? 2;
   const mod = daysSinceEpoch % 3;
   const puzzleType: DailyPuzzleType =
     mod === 0 ? 'number-matrix' : mod === 1 ? 'sequence-solver' : 'equation-puzzle';

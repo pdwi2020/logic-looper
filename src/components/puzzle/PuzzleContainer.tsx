@@ -5,6 +5,8 @@ import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { CountUp } from '@/components/ui/CountUp';
 import { HintDrawer } from '@/components/puzzle/HintDrawer';
+import { HowToPlayDialog } from '@/components/puzzle/HowToPlayDialog';
+import { generateShareText } from '@/lib/share';
 
 import { PuzzleGrid } from '@/components/puzzle/PuzzleGrid';
 import { SequenceView } from '@/components/puzzle/SequenceView';
@@ -83,6 +85,7 @@ export function PuzzleContainer() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [newAchievements, setNewAchievements] = useState<Achievement[]>([]);
   const [hintDrawerOpen, setHintDrawerOpen] = useState(false);
+  const [howToPlayOpen, setHowToPlayOpen] = useState(false);
   const [todayActivity, setTodayActivity] = useState<
     DailyActivity | null | undefined
   >(undefined);
@@ -105,6 +108,13 @@ export function PuzzleContainer() {
       setTodayActivity(activity ?? null);
     });
   }, [today]);
+
+  // Auto-show "How to Play" on first visit
+  useEffect(() => {
+    if (!localStorage.getItem('ll-htps')) {
+      setHowToPlayOpen(true);
+    }
+  }, []);
 
   useEffect(() => {
     if (newAchievements.length === 0) return;
@@ -262,15 +272,22 @@ export function PuzzleContainer() {
   );
 
   const handleShareScore = useCallback(() => {
-    const dayNumber = (Math.floor(Date.now() / 86_400_000) % 365) + 1;
-    const text = `I scored ${score} pts on Logic Looper Day ${dayNumber} (Difficulty ${puzzle.difficulty}) ⚡ https://logic-looper-ruby.vercel.app`;
+    const text = generateShareText({
+      wrongCount,
+      solved: !isGivenUp,
+      hintLevel,
+      score,
+      timeTaken,
+      difficulty: puzzle.difficulty,
+      puzzleType: type,
+    });
     if (navigator.clipboard) {
       void navigator.clipboard.writeText(text).then(() => {
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       });
     }
-  }, [score, puzzle.difficulty]);
+  }, [wrongCount, isGivenUp, hintLevel, score, timeTaken, puzzle.difficulty, type]);
 
   // Resolve the hint text for the current hint level
   const currentHintText = useMemo(() => {
@@ -297,6 +314,20 @@ export function PuzzleContainer() {
     type === 'number-matrix' && hintLevel > 0 && hintLevel < 3
       ? `Hint ${hintLevel + 1} (-10)`
       : 'Hint (-10)';
+
+  const sharePreviewText = useMemo(
+    () =>
+      generateShareText({
+        wrongCount,
+        solved: !isGivenUp,
+        hintLevel,
+        score,
+        timeTaken,
+        difficulty: puzzle.difficulty,
+        puzzleType: type,
+      }),
+    [wrongCount, isGivenUp, hintLevel, score, timeTaken, puzzle.difficulty, type],
+  );
 
   if (todayActivity === undefined) {
     return (
@@ -435,15 +466,33 @@ export function PuzzleContainer() {
             })}
           </>
         ) : null}
+        <HowToPlayDialog
+          open={howToPlayOpen}
+          onClose={() => {
+            setHowToPlayOpen(false);
+            localStorage.setItem('ll-htps', '1');
+          }}
+        />
+
         {/* Difficulty + Timer — sticky on mobile so it stays visible while scrolling */}
         <div className="sticky top-16 z-30 flex flex-col items-start justify-between gap-3 rounded-xl bg-brand-light-blue/95 p-3 backdrop-blur-sm sm:relative sm:top-auto sm:z-auto sm:flex-row sm:items-center sm:bg-brand-light-blue/20 sm:backdrop-blur-none">
-          <div>
-            <p className="font-sans text-xs font-semibold uppercase tracking-[0.15em] text-brand-dark-gray">
-              Difficulty
-            </p>
-            <p className="font-sans text-lg font-semibold text-brand-dark">
-              Level {puzzle.difficulty}
-            </p>
+          <div className="flex items-center gap-2">
+            <div>
+              <p className="font-sans text-xs font-semibold uppercase tracking-[0.15em] text-brand-dark-gray">
+                Difficulty
+              </p>
+              <p className="font-sans text-lg font-semibold text-brand-dark">
+                Level {puzzle.difficulty}
+              </p>
+            </div>
+            <button
+              type="button"
+              aria-label="How to play"
+              onClick={() => setHowToPlayOpen(true)}
+              className="ml-1 flex h-6 w-6 items-center justify-center rounded-full border border-brand-dark-gray/30 font-sans text-xs font-bold text-brand-dark-gray transition-colors hover:border-brand-blue hover:text-brand-blue focus:outline-none"
+            >
+              ?
+            </button>
           </div>
           <Timer isRunning={!isComplete} onTimeUpdate={handleTimeUpdate} />
         </div>
@@ -488,7 +537,19 @@ export function PuzzleContainer() {
             disabled={hintDisabled}
             className="min-h-[2.75rem] w-full sm:w-auto"
           >
-            {hintLabel}
+            <span className="flex items-center gap-2">
+              {hintLabel}
+              <span className="flex items-center gap-1">
+                {Array.from({ length: maxHintLevel }, (_, i) => (
+                  <span
+                    key={i}
+                    className={`h-2 w-2 rounded-full transition-colors ${
+                      i < hintLevel ? 'bg-brand-purple' : 'bg-brand-light-steel'
+                    }`}
+                  />
+                ))}
+              </span>
+            </span>
           </Button>
           <Button
             onClick={() => void handleSubmit()}
@@ -594,6 +655,15 @@ export function PuzzleContainer() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.35 }}
+              className="mt-4 rounded-xl border border-brand-light-steel bg-brand-light-gray p-3 font-mono text-sm leading-relaxed text-brand-dark whitespace-pre"
+            >
+              {sharePreviewText}
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.45 }}
               className="mt-3"
             >
               <Button
