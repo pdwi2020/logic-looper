@@ -1,6 +1,8 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+
+import { Button } from '@/components/ui/Button';
 
 interface NavItem {
   label: string;
@@ -20,21 +22,53 @@ const isActiveRoute = (pathname: string, to: string): boolean => {
   if (to === '/') {
     return pathname === '/';
   }
-
   return pathname.startsWith(to);
 };
 
+const activeNavLinkClassName =
+  'rounded-lg px-3 py-2 bg-brand-blue/15 text-brand-light-sky ring-1 ring-inset ring-brand-blue/20 font-sans text-sm font-medium transition-colors';
+const inactiveNavLinkClassName =
+  'rounded-lg px-3 py-2 text-brand-light-steel/80 hover:bg-white/8 hover:text-brand-white font-sans text-sm font-medium transition-colors';
+
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
+  const [scrolled, setScrolled] = useState(false);
   const { pathname } = useLocation();
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 12);
+    };
+
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
   return (
-    <header className="sticky top-0 z-40 border-b border-brand-light-blue/20 bg-brand-night text-brand-white shadow-sm">
+    <header
+      className={`sticky top-0 z-40 transition-all duration-300 ${
+        scrolled
+          ? 'border-b border-brand-light-blue/15 bg-brand-night/85 backdrop-blur-md shadow-sm'
+          : 'border-b border-transparent bg-brand-night'
+      }`}
+    >
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
         <Link
           to="/"
-          className="font-display text-2xl font-bold tracking-tight text-brand-blue"
+          className="flex items-center gap-2 font-display text-2xl font-bold tracking-tight text-brand-blue"
         >
+          <svg
+            viewBox="0 0 20 20"
+            className="h-5 w-5 shrink-0"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <polygon points="10,1 19,10 10,19 1,10" />
+          </svg>
           Logic Looper
         </Link>
 
@@ -43,15 +77,20 @@ export function Header() {
             <Link
               key={item.to}
               to={item.to}
-              className={`rounded-lg px-3 py-2 font-sans text-sm font-medium transition-colors ${
+              className={
                 isActiveRoute(pathname, item.to)
-                  ? 'bg-brand-blue/20 text-brand-light-sky'
-                  : 'text-brand-light-steel hover:bg-brand-white/10 hover:text-brand-white'
-              }`}
+                  ? activeNavLinkClassName
+                  : inactiveNavLinkClassName
+              }
             >
               {item.label}
             </Link>
           ))}
+          <Link to="/puzzle">
+            <Button variant="primary" size="sm">
+              Play →
+            </Button>
+          </Link>
         </nav>
 
         <button
@@ -105,10 +144,10 @@ export function Header() {
                   <Link
                     to={item.to}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`block rounded-lg px-3 py-2 font-sans text-sm font-medium transition-colors ${
+                    className={`block ${
                       isActiveRoute(pathname, item.to)
-                        ? 'bg-brand-blue/20 text-brand-light-sky'
-                        : 'text-brand-light-steel hover:bg-brand-white/10 hover:text-brand-white'
+                        ? activeNavLinkClassName
+                        : inactiveNavLinkClassName
                     }`}
                   >
                     {item.label}

@@ -164,3 +164,28 @@ html {
 .dark .bg-white\/10 {
   background-color: rgba(255, 255, 255, 0.06) !important;
 }
+
+/* Dot-grid background (subtle hero texture layer) */
+.dot-pattern {
+  background-image: radial-gradient(circle, rgba(255,255,255,0.12) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Static gradient text clip (complement to animated-gradient-text) */
+.gradient-text {
+  background: linear-gradient(135deg, #DDF2FD 0%, #C2D9FF 60%, #F8EDFF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Blue glow — for leaderboard 'You' row and hover highlights */
+.glow-blue-sm {
+  box-shadow: 0 0 0 1px rgba(65,75,234,0.2), 0 4px 16px rgba(65,75,234,0.18);
+}
+
+/* Polished scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(65,75,234,0.25); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(65,75,234,0.45); }
