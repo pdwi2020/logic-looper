@@ -14,13 +14,6 @@ function parseUtcDate(date: string): Date {
   return parsedDate;
 }
 
-function getDayOfYear(date: Date): number {
-  const year = date.getUTCFullYear();
-  const startOfYear = Date.UTC(year, 0, 1);
-  const currentDate = Date.UTC(year, date.getUTCMonth(), date.getUTCDate());
-
-  return Math.floor((currentDate - startOfYear) / MS_PER_DAY) + 1;
-}
 
 export function generateDailySeed(
   date: string,
