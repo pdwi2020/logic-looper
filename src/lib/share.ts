@@ -33,3 +33,7 @@ export function generateShareText(params: {
     'logic-looper-ruby.vercel.app',
   ].join('\n');
 }
+
+export function generateTweetUrl(shareText: string): string {
+  return `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
+}

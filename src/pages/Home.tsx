@@ -151,6 +151,131 @@ export default function Home() {
         </div>
       </motion.section>
 
+      {/* Stats Bar */}
+      <motion.section
+        className="grid grid-cols-2 gap-3 sm:grid-cols-4"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.3 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
+      >
+        {[
+          { value: '3', label: 'Puzzle Types' },
+          { value: '3', label: 'Difficulty Levels' },
+          { value: '100%', label: 'Offline-First' },
+          { value: 'Open', label: 'Source' },
+        ].map((stat, i) => (
+          <motion.div
+            key={stat.label}
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.07, duration: 0.35 }}
+            className="rounded-2xl border border-brand-light-steel bg-brand-white px-4 py-5 text-center shadow-sm"
+          >
+            <p className="font-display text-3xl font-bold text-brand-blue">{stat.value}</p>
+            <p className="mt-1 font-body text-xs text-brand-dark-gray">{stat.label}</p>
+          </motion.div>
+        ))}
+      </motion.section>
+
+      {/* How It Works */}
+      <motion.section
+        className="space-y-4"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.45, ease: 'easeOut' }}
+      >
+        <h2 className="font-sans text-2xl font-semibold text-brand-dark">How It Works</h2>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          {[
+            {
+              step: '1',
+              title: 'A new puzzle drops daily',
+              body: 'Every day at midnight UTC, a fresh challenge is seeded deterministically — every player worldwide gets the same puzzle.',
+            },
+            {
+              step: '2',
+              title: 'Solve it fast',
+              body: 'Race the clock across three puzzle types: Number Matrix, Sequence Solver, and Equation Puzzle. Time and hints both affect your final score.',
+            },
+            {
+              step: '3',
+              title: 'Share & compete',
+              body: 'After solving, share your emoji result card to social media and climb the leaderboard by building your daily streak.',
+            },
+          ].map((item, i) => (
+            <motion.div
+              key={item.step}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1, duration: 0.38 }}
+              className="flex gap-4 rounded-2xl border border-brand-light-steel bg-brand-white p-5 shadow-sm"
+            >
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-blue font-sans text-sm font-bold text-white">
+                {item.step}
+              </span>
+              <div>
+                <p className="font-sans text-sm font-semibold text-brand-dark">{item.title}</p>
+                <p className="mt-1 font-body text-sm text-brand-dark-gray">{item.body}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </motion.section>
+
+      {/* FAQ */}
+      <motion.section
+        className="space-y-4"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.15 }}
+        transition={{ duration: 0.45, ease: 'easeOut' }}
+      >
+        <h2 className="font-sans text-2xl font-semibold text-brand-dark">Frequently Asked Questions</h2>
+        <div className="divide-y divide-brand-light-steel overflow-hidden rounded-2xl border border-brand-light-steel bg-brand-white">
+          {[
+            {
+              q: 'What is Logic Looper?',
+              a: 'Logic Looper is a free, offline-first daily puzzle game. One challenge drops every day — solve it, build your streak, and compare your score on the leaderboard.',
+            },
+            {
+              q: 'Is it free? Will it always be free?',
+              a: 'Yes, completely free. No ads, no paywalls, no account required to play. Your progress is stored locally in your browser.',
+            },
+            {
+              q: 'How does the daily puzzle work? Can two players get different puzzles?',
+              a: 'No — the same puzzle is seeded for everyone worldwide using an HMAC-SHA256 hash of the date. Two players on the same day always see the same puzzle.',
+            },
+            {
+              q: 'Will my streak and stats save if I close the browser?',
+              a: 'Yes. All progress is saved to your browser\'s IndexedDB storage, which persists across sessions. Clear your browser data or private mode will reset it.',
+            },
+            {
+              q: "What's coming next?",
+              a: 'User accounts for cross-device sync, a real-time global leaderboard, and more puzzle types are on the roadmap.',
+            },
+          ].map((item) => (
+            <details key={item.q} className="group px-5 py-4">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-sans text-sm font-semibold text-brand-dark">
+                {item.q}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4 shrink-0 text-brand-dark-gray transition-transform group-open:rotate-180"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </summary>
+              <p className="mt-2 font-body text-sm text-brand-dark-gray">{item.a}</p>
+            </details>
+          ))}
+        </div>
+      </motion.section>
+
       {showPreview ? (
         <motion.section
           className="space-y-3"

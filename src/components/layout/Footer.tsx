@@ -28,6 +28,7 @@ export function Footer() {
             {[
               { label: 'Home', to: '/' },
               { label: 'Play Today', to: '/puzzle' },
+              { label: 'Archive', to: '/archive' },
               { label: 'Profile', to: '/profile' },
               { label: 'Leaderboard', to: '/leaderboard' },
             ].map((item) => (

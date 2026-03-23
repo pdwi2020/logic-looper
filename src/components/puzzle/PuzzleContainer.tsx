@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { CountUp } from '@/components/ui/CountUp';
 import { HintDrawer } from '@/components/puzzle/HintDrawer';
 import { HowToPlayDialog } from '@/components/puzzle/HowToPlayDialog';
-import { generateShareText } from '@/lib/share';
+import { generateShareText, generateTweetUrl } from '@/lib/share';
 
 import { PuzzleGrid } from '@/components/puzzle/PuzzleGrid';
 import { SequenceView } from '@/components/puzzle/SequenceView';
@@ -272,22 +272,18 @@ export function PuzzleContainer() {
   );
 
   const handleShareScore = useCallback(() => {
-    const text = generateShareText({
-      wrongCount,
-      solved: !isGivenUp,
-      hintLevel,
-      score,
-      timeTaken,
-      difficulty: puzzle.difficulty,
-      puzzleType: type,
-    });
-    if (navigator.clipboard) {
+    const text = sharePreviewText;
+    if (navigator.share) {
+      void navigator.share({ text }).catch(() => {
+        // user cancelled or not supported — silent fail
+      });
+    } else if (navigator.clipboard) {
       void navigator.clipboard.writeText(text).then(() => {
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       });
     }
-  }, [wrongCount, isGivenUp, hintLevel, score, timeTaken, puzzle.difficulty, type]);
+  }, [sharePreviewText]);
 
   // Resolve the hint text for the current hint level
   const currentHintText = useMemo(() => {
@@ -664,15 +660,23 @@ export function PuzzleContainer() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.45 }}
-              className="mt-3"
+              className="mt-3 flex flex-wrap gap-2"
             >
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleShareScore}
               >
-                {copied ? 'Copied!' : 'Share Score'}
+                {copied ? 'Copied!' : navigator.share ? 'Share' : 'Copy'}
               </Button>
+              <a
+                href={generateTweetUrl(sharePreviewText)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-[2rem] items-center rounded-xl border border-brand-dark/20 bg-transparent px-3 py-1 font-sans text-sm font-medium text-brand-dark-gray transition-colors hover:border-brand-dark hover:text-brand-dark focus:outline-none"
+              >
+                Post to X
+              </a>
             </motion.div>
           </motion.div>
         ) : null}

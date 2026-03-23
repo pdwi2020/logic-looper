@@ -13,6 +13,7 @@ import Settings from '@/pages/Settings';
 import { store } from '@/store/store';
 
 const PuzzlePage = lazy(() => import('@/pages/Puzzle'));
+const ArchivePage = lazy(() => import('@/pages/Archive'));
 
 function RouteLoadingFallback() {
   return (
@@ -41,6 +42,14 @@ function App() {
             <Route path="profile" element={<Profile />} />
             <Route path="leaderboard" element={<Leaderboard />} />
             <Route path="settings" element={<Settings />} />
+            <Route
+              path="archive"
+              element={
+                <Suspense fallback={<RouteLoadingFallback />}>
+                  <ArchivePage />
+                </Suspense>
+              }
+            />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

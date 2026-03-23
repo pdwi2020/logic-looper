@@ -30,6 +30,8 @@ export default function Profile() {
   const [avgScore, setAvgScore] = useState<number>(0);
   const [bestScore, setBestScore] = useState<number>(0);
   const [totalTimeMins, setTotalTimeMins] = useState<number>(0);
+  const [winRate, setWinRate] = useState<number>(0);
+  const [speedBuckets, setSpeedBuckets] = useState<{ fast: number; medium: number; slow: number }>({ fast: 0, medium: 0, slow: 0 });
   const [isLoadingAchievements, setIsLoadingAchievements] =
     useState<boolean>(true);
   const {
@@ -67,6 +69,13 @@ export default function Profile() {
         setTotalTimeMins(
           Math.round(activities.reduce((s, a) => s + a.timeTaken, 0) / 60),
         );
+        const total = activities.length;
+        setWinRate(total > 0 ? Math.round((solved.length / total) * 100) : 0);
+        setSpeedBuckets({
+          fast:   solved.filter((a) => a.timeTaken < 30).length,
+          medium: solved.filter((a) => a.timeTaken >= 30 && a.timeTaken <= 90).length,
+          slow:   solved.filter((a) => a.timeTaken > 90).length,
+        });
       } finally {
         if (isMounted) {
           setIsLoadingAchievements(false);
@@ -281,7 +290,70 @@ export default function Profile() {
                   </div>
                 </div>
               </div>
+
+              {/* Win Rate */}
+              <div className="col-span-2">
+                <div
+                  className="rounded-xl p-[1px]"
+                  style={{
+                    background: 'linear-gradient(135deg, #7752FE, #414BEA)',
+                  }}
+                >
+                  <div className="rounded-xl bg-brand-white dark:bg-[#1a1a2e] px-4 py-3 text-center">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-brand-dark-gray">
+                      Win Rate
+                    </p>
+                    <p className="mt-1 font-sans text-2xl font-bold text-brand-purple">
+                      <CountUp value={winRate} delay={0.4} />
+                      <span className="ml-0.5 text-lg">%</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
+          </Card>
+        </motion.section>
+      )}
+
+      {/* Solve Speed distribution */}
+      {totalSolved >= 3 && (
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.38, ease: 'easeOut' }}
+        >
+          <Card title="Solve Speed" variant="default">
+            <p className="mb-3 font-body text-xs text-brand-dark-gray">
+              Based on your {totalSolved} solved puzzle{totalSolved !== 1 ? 's' : ''}
+            </p>
+            {(
+              [
+                { label: 'Fast', sub: '< 30s', count: speedBuckets.fast, color: 'bg-brand-blue' },
+                { label: 'Medium', sub: '30–90s', count: speedBuckets.medium, color: 'bg-brand-purple' },
+                { label: 'Slow', sub: '> 90s', count: speedBuckets.slow, color: 'bg-brand-dark-gray' },
+              ] as const
+            ).map(({ label, sub, count, color }) => {
+              const max = Math.max(speedBuckets.fast, speedBuckets.medium, speedBuckets.slow, 1);
+              const pct = (count / max) * 100;
+              return (
+                <div key={label} className="mb-3">
+                  <div className="mb-1 flex items-center justify-between font-sans text-xs font-semibold text-brand-dark-gray">
+                    <span>{label} <span className="font-normal text-brand-dark-gray/60">({sub})</span></span>
+                    <span>{count}</span>
+                  </div>
+                  <div className="h-3 w-full overflow-hidden rounded-full bg-brand-light-steel">
+                    <motion.div
+                      className={`h-full rounded-full ${color}`}
+                      initial={{ width: 0 }}
+                      whileInView={{ width: `${pct}%` }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.7, ease: 'easeOut', delay: 0.1 }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
           </Card>
         </motion.section>
       )}
