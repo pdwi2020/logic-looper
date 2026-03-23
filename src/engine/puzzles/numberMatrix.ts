@@ -146,26 +146,48 @@ function generateDifficultyTwo(random: SeededRandom): {
   grid: number[][];
   hints: [string, string, string];
 } {
-  const rowFactors = Array.from({ length: 3 }, () => random.nextInt(2, 9));
-  const columnFactors = Array.from({ length: 3 }, () => random.nextInt(2, 9));
+  const variant = random.nextInt(0, 1);
 
-  const grid = [
-    [1, ...columnFactors],
-    ...rowFactors.map((factor) => [
-      factor,
-      factor * columnFactors[0],
-      factor * columnFactors[1],
-      factor * columnFactors[2],
-    ]),
+  if (variant === 0) {
+    const rowFactors = Array.from({ length: 3 }, () => random.nextInt(2, 9));
+    const columnFactors = Array.from({ length: 3 }, () => random.nextInt(2, 9));
+
+    const grid = [
+      [1, ...columnFactors],
+      ...rowFactors.map((factor) => [
+        factor,
+        factor * columnFactors[0],
+        factor * columnFactors[1],
+        factor * columnFactors[2],
+      ]),
+    ];
+
+    return {
+      grid,
+      hints: [
+        'The grid follows a multiplication-based pattern.',
+        'Look at the header row and left column — they contain factors.',
+        'Top row and left column are factors; inside cells are their products.',
+      ],
+    };
+  }
+
+  const rowBases = [random.nextInt(1, 9), random.nextInt(1, 9), random.nextInt(1, 9)];
+  const colBases = [random.nextInt(1, 9), random.nextInt(1, 9), random.nextInt(1, 9)];
+  const addGrid = [
+    [0, colBases[0], colBases[1], colBases[2]],
+    [rowBases[0], rowBases[0] + colBases[0], rowBases[0] + colBases[1], rowBases[0] + colBases[2]],
+    [rowBases[1], rowBases[1] + colBases[0], rowBases[1] + colBases[1], rowBases[1] + colBases[2]],
+    [rowBases[2], rowBases[2] + colBases[0], rowBases[2] + colBases[1], rowBases[2] + colBases[2]],
   ];
 
   return {
-    grid,
+    grid: addGrid,
     hints: [
-      'The grid follows a multiplication-based pattern.',
-      'Look at the header row and left column — they contain factors.',
-      'Top row and left column are factors; inside cells are their products.',
-    ],
+      'The grid follows an addition pattern using the header row and column.',
+      'Each inner cell derives from the row header and column header.',
+      'grid[i][j] = left_header[i] + top_header[j].',
+    ] as [string, string, string],
   };
 }
 
@@ -173,23 +195,42 @@ function generateDifficultyThree(random: SeededRandom): {
   grid: number[][];
   hints: [string, string, string];
 } {
-  // Clamp to 2–7 to prevent overflow: max fourth = 7*7 + 14 = 63
-  const grid = Array.from({ length: 4 }, () => {
-    const first = random.nextInt(2, 7);
-    const second = random.nextInt(2, 7);
-    const third = first + second;
-    const fourth = first * second + third;
+  const variant = random.nextInt(0, 1);
 
-    return [first, second, third, fourth];
+  if (variant === 0) {
+    // Clamp to 2–7 to prevent overflow: max fourth = 7*7 + 14 = 63
+    const grid = Array.from({ length: 4 }, () => {
+      const first = random.nextInt(2, 7);
+      const second = random.nextInt(2, 7);
+      const third = first + second;
+      const fourth = first * second + third;
+
+      return [first, second, third, fourth];
+    });
+
+    return {
+      grid,
+      hints: [
+        'Each row follows a two-step formula involving all four columns.',
+        'Look at how column 3 relates to columns 1 and 2.',
+        'Per row: col3 = col1 + col2, col4 = col1 \u00d7 col2 + col3.',
+      ],
+    };
+  }
+
+  const psGrid = Array.from({ length: 4 }, () => {
+    const a = random.nextInt(2, 6);
+    const b = random.nextInt(2, 6);
+    return [a, b, a * b, a + b + a * b];
   });
 
   return {
-    grid,
+    grid: psGrid,
     hints: [
-      'Each row follows a two-step formula involving all four columns.',
-      'Look at how column 3 relates to columns 1 and 2.',
-      'Per row: col3 = col1 + col2, col4 = col1 \u00d7 col2 + col3.',
-    ],
+      'Each row follows a two-step formula using all four columns.',
+      'Column 3 uses multiplication of columns 1 and 2.',
+      'col3 = col1 x col2; col4 = col1 + col2 + col3.',
+    ] as [string, string, string],
   };
 }
 

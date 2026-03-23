@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useAnimation } from 'framer-motion';
 import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -23,7 +23,6 @@ import {
 } from '@/db/operations';
 import { generateDailyPuzzle, validatePuzzleAnswer } from '@/engine';
 import type { PuzzleType } from '@/engine';
-import type { NumberMatrixPuzzle } from '@/engine/puzzles/numberMatrix';
 import { puzzleCompleted } from '@/store/slices';
 import type { AppDispatch } from '@/store/store';
 import type { Achievement, DailyActivity } from '@/db/schemas';
@@ -90,7 +89,13 @@ export function PuzzleContainer() {
     DailyActivity | null | undefined
   >(undefined);
 
-  const maxHintLevel = type === 'number-matrix' ? 3 : 1;
+  const inputControls = useAnimation();
+  const prefersReducedMotion = useMemo(
+    () => localStorage.getItem('ll-reduced-motion') === 'true',
+    [],
+  );
+
+  const maxHintLevel = 3;
   const hintPenalty = hintLevel * 10;
   const showHint = hintLevel > 0;
   const canGiveUp = wrongCount >= 3 && !isComplete && !isGivenUp;
@@ -170,6 +175,12 @@ export function PuzzleContainer() {
       setShowTryAgain(true);
       setWrongCount((c) => c + 1);
       navigator.vibrate?.([10, 50, 10]);
+      if (!prefersReducedMotion) {
+        void inputControls.start({
+          x: [0, -10, 10, -10, 10, -6, 6, 0],
+          transition: { duration: 0.45, ease: 'easeOut' },
+        });
+      }
       return;
     }
 
@@ -177,6 +188,12 @@ export function PuzzleContainer() {
     const baseScore = calculateScore(timeTaken, puzzle.difficulty);
     const finalScore = Math.max(0, baseScore - currentHintPenalty);
 
+    if (!prefersReducedMotion) {
+      void inputControls.start({
+        scale: [1, 1.06, 0.97, 1.02, 1],
+        transition: { duration: 0.4, ease: 'easeOut' },
+      });
+    }
     setScore(finalScore);
     setIsComplete(true);
     setShowResult(true);
@@ -230,9 +247,11 @@ export function PuzzleContainer() {
   }, [
     dispatch,
     hintLevel,
+    inputControls,
     isComplete,
     isGivenUp,
     isSaving,
+    prefersReducedMotion,
     puzzle,
     timeTaken,
     today,
@@ -271,15 +290,13 @@ export function PuzzleContainer() {
     [handleSubmit],
   );
 
-  // Resolve the hint text for the current hint level
+  // Resolve the hint text for the current hint level.
+  // All puzzle types expose hints: [string, string, string].
   const currentHintText = useMemo(() => {
     if (!showHint) return '';
-    if (type === 'number-matrix' && 'hints' in puzzle) {
-      const level = Math.min(hintLevel - 1, 2);
-      return (puzzle as NumberMatrixPuzzle).hints[level];
-    }
-    return puzzle.hint;
-  }, [showHint, type, puzzle, hintLevel]);
+    const level = Math.min(hintLevel - 1, 2) as 0 | 1 | 2;
+    return puzzle.hints[level];
+  }, [showHint, puzzle, hintLevel]);
 
   const submitDisabled =
     userAnswer.trim().length === 0 || isComplete || isSaving || isGivenUp;
@@ -293,7 +310,7 @@ export function PuzzleContainer() {
         : 'Equation Puzzle';
 
   const hintLabel =
-    type === 'number-matrix' && hintLevel > 0 && hintLevel < 3
+    hintLevel > 0 && hintLevel < 3
       ? `Hint ${hintLevel + 1} (-10)`
       : 'Hint (-10)';
 
@@ -307,6 +324,7 @@ export function PuzzleContainer() {
         timeTaken,
         difficulty: puzzle.difficulty,
         puzzleType: type,
+        colorblind: localStorage.getItem('ll-colorblind') === 'true',
       }),
     [wrongCount, isGivenUp, hintLevel, score, timeTaken, puzzle.difficulty, type],
   );
@@ -494,6 +512,7 @@ export function PuzzleContainer() {
           <Timer isRunning={!isComplete} onTimeUpdate={handleTimeUpdate} />
         </div>
 
+        <motion.div animate={inputControls}>
         {type === 'number-matrix' && 'grid' in puzzle ? (
           <PuzzleGrid
             grid={puzzle.grid}
@@ -527,7 +546,7 @@ export function PuzzleContainer() {
         ) : null}
 
         {/* Action buttons — full-width on mobile */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+        <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <Button
             variant="ghost"
             onClick={handleShowHint}
@@ -565,17 +584,14 @@ export function PuzzleContainer() {
             </Button>
           ) : null}
         </div>
+        </motion.div>
 
         {showHint ? (
           <HintDrawer
             open={hintDrawerOpen}
             onClose={() => setHintDrawerOpen(false)}
             hint={currentHintText}
-            hintLabelText={
-              type === 'number-matrix' && hintLevel > 1
-                ? `Hint ${hintLevel} of 3`
-                : 'Hint'
-            }
+            hintLabelText={hintLevel > 1 ? `Hint ${hintLevel} of 3` : 'Hint'}
           />
         ) : null}
 

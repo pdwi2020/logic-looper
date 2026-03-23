@@ -20,9 +20,28 @@ function applyTheme(mode: ThemeMode) {
   localStorage.setItem('theme', mode);
 }
 
+function applyColorblind(enabled: boolean) {
+  localStorage.setItem('ll-colorblind', enabled ? 'true' : 'false');
+}
+
+function applyReducedMotion(enabled: boolean) {
+  if (enabled) {
+    document.documentElement.classList.add('motion-reduce');
+  } else {
+    document.documentElement.classList.remove('motion-reduce');
+  }
+  localStorage.setItem('ll-reduced-motion', enabled ? 'true' : 'false');
+}
+
 export default function Settings() {
   const [themeMode, setThemeMode] = useState<ThemeMode>(
     () => (localStorage.getItem('theme') as ThemeMode | null) ?? 'light',
+  );
+  const [colorblind, setColorblind] = useState<boolean>(
+    () => localStorage.getItem('ll-colorblind') === 'true',
+  );
+  const [reducedMotion, setReducedMotion] = useState<boolean>(
+    () => localStorage.getItem('ll-reduced-motion') === 'true',
   );
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [isStatusError, setIsStatusError] = useState(false);
@@ -123,6 +142,55 @@ export default function Settings() {
             >
               Dark
             </Button>
+          </div>
+        </Card>
+      </motion.section>
+
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.41, ease: 'easeOut' }}
+      >
+        <Card title="Accessibility" variant="default">
+          <p className="text-sm text-brand-dark-gray">
+            Adjust visual and motion settings to suit your preferences.
+          </p>
+          <div className="mt-4 space-y-4">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="font-sans text-sm font-semibold text-brand-dark">Colorblind-friendly colors</p>
+                <p className="font-body text-xs text-brand-dark-gray">Replaces red/green share emojis with orange/blue</p>
+              </div>
+              <Button
+                variant={colorblind ? 'primary' : 'ghost'}
+                size="sm"
+                onClick={() => {
+                  const next = !colorblind;
+                  setColorblind(next);
+                  applyColorblind(next);
+                }}
+              >
+                {colorblind ? 'On' : 'Off'}
+              </Button>
+            </div>
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="font-sans text-sm font-semibold text-brand-dark">Reduce animations</p>
+                <p className="font-body text-xs text-brand-dark-gray">Disables shake, bounce, and transition effects</p>
+              </div>
+              <Button
+                variant={reducedMotion ? 'primary' : 'ghost'}
+                size="sm"
+                onClick={() => {
+                  const next = !reducedMotion;
+                  setReducedMotion(next);
+                  applyReducedMotion(next);
+                }}
+              >
+                {reducedMotion ? 'On' : 'Off'}
+              </Button>
+            </div>
           </div>
         </Card>
       </motion.section>

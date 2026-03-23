@@ -6,6 +6,7 @@ export function generateShareText(params: {
   timeTaken: number;
   difficulty: number;
   puzzleType: string;
+  colorblind?: boolean;
 }): string {
   const dayNumber = (Math.floor(Date.now() / 86_400_000) % 365) + 1;
 
@@ -16,8 +17,9 @@ export function generateShareText(params: {
         ? 'Sequence Solver'
         : 'Equation Puzzle';
 
-  const wrongTiles = '🟥'.repeat(params.wrongCount);
-  const finalTile = params.solved ? '🟩' : '⬛';
+  const wrongTile = params.colorblind ? '🟧' : '🟥';
+  const finalTile = params.solved ? (params.colorblind ? '🟦' : '🟩') : '⬛';
+  const wrongTiles = wrongTile.repeat(params.wrongCount);
   const emojiGrid = wrongTiles + finalTile;
 
   const mins = Math.floor(params.timeTaken / 60);

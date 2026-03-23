@@ -4,6 +4,7 @@ export interface SequencePuzzle {
   rule: string;
   difficulty: number;
   hint: string;
+  hints: [string, string, string];
 }
 
 interface SeededRandom {
@@ -57,6 +58,7 @@ function generateDifficultyOne(random: SeededRandom): {
   sequence: number[];
   rule: string;
   hint: string;
+  hints: [string, string, string];
 } {
   const length = random.nextInt(5, 7);
   const start = random.nextInt(2, 20);
@@ -67,6 +69,11 @@ function generateDifficultyOne(random: SeededRandom): {
     sequence,
     rule: `Add ${step} each step.`,
     hint: 'Look for a constant difference between consecutive numbers.',
+    hints: [
+      'The sequence follows a consistent arithmetic pattern.',
+      'Look at the differences between consecutive terms.',
+      `Each term increases by ${step}.`,
+    ],
   };
 }
 
@@ -74,6 +81,7 @@ function generateDifficultyTwo(random: SeededRandom): {
   sequence: number[];
   rule: string;
   hint: string;
+  hints: [string, string, string];
 } {
   const variant = random.nextInt(0, 2); // 0=geometric, 1=quadratic-diff, 2=squares/triangular
   const length = random.nextInt(5, 7);
@@ -90,6 +98,11 @@ function generateDifficultyTwo(random: SeededRandom): {
       sequence,
       rule: `Multiply by ${ratio} each step.`,
       hint: 'Check whether each term keeps the same multiplication ratio.',
+      hints: [
+        'Each term has a fixed multiplicative relationship to the previous.',
+        'Divide any term by the one before it to find the constant ratio.',
+        `Each term is multiplied by ${ratio}.`,
+      ],
     };
   }
 
@@ -109,6 +122,11 @@ function generateDifficultyTwo(random: SeededRandom): {
       sequence,
       rule: `Differences increase by ${differenceStep} each step.`,
       hint: 'Find the jump between terms first, then check how those jumps change.',
+      hints: [
+        'The differences between consecutive terms follow their own pattern.',
+        'Calculate the jumps between terms — do those jumps change consistently?',
+        `The gap between terms grows by ${differenceStep} each step.`,
+      ],
     };
   }
 
@@ -125,6 +143,11 @@ function generateDifficultyTwo(random: SeededRandom): {
       sequence,
       rule: 'Each term is a perfect square.',
       hint: 'Try squaring consecutive integers starting from a small number.',
+      hints: [
+        'Each term relates to a simple counting number in a specific way.',
+        'Try squaring small consecutive integers and comparing to the sequence.',
+        'Each term is a perfect square: 1, 4, 9, 16, 25 ...',
+      ],
     };
   }
 
@@ -138,6 +161,11 @@ function generateDifficultyTwo(random: SeededRandom): {
     sequence,
     rule: 'Triangular numbers: n \u00d7 (n+1) \u00f7 2.',
     hint: 'The differences between terms increase by 1 each step.',
+    hints: [
+      'The differences between consecutive terms increase by a constant.',
+      'The gaps between terms grow by exactly 1 each step.',
+      'These are triangular numbers: T(n) = n x (n+1) divided by 2.',
+    ],
   };
 }
 
@@ -145,6 +173,7 @@ function generateDifficultyThree(random: SeededRandom): {
   sequence: number[];
   rule: string;
   hint: string;
+  hints: [string, string, string];
 } {
   const variant = random.nextInt(0, 2); // 0=fibonacci, 1=alternating, 2=triangular
   const length = random.nextInt(6, 7);
@@ -163,6 +192,11 @@ function generateDifficultyThree(random: SeededRandom): {
       sequence,
       rule: 'Each term equals the sum of the previous two terms.',
       hint: 'Try adding neighboring numbers to see if the next number appears.',
+      hints: [
+        'Each term is built from the two terms before it.',
+        'Try adding two consecutive terms and see if the result appears next.',
+        'Each term equals the sum of the previous two terms (Fibonacci-style).',
+      ],
     };
   }
 
@@ -184,6 +218,11 @@ function generateDifficultyThree(random: SeededRandom): {
       sequence,
       rule: `Alternate operations: +${addValue}, then \u00d7${multiplier}, then repeat.`,
       hint: 'The operation switches every step. Identify the two-step cycle.',
+      hints: [
+        'The sequence alternates between two different operations.',
+        'Try applying addition then multiplication in turns from the start.',
+        `Operations alternate: +${addValue} then x${multiplier}, repeating.`,
+      ],
     };
   }
 
@@ -197,6 +236,11 @@ function generateDifficultyThree(random: SeededRandom): {
     sequence,
     rule: 'Triangular numbers: n \u00d7 (n+1) \u00f7 2.',
     hint: 'The differences between consecutive terms increase by exactly 1 each step.',
+    hints: [
+      'The gaps between terms form their own arithmetic sequence.',
+      'Each gap between consecutive terms is 1 larger than the previous gap.',
+      'These are triangular numbers: T(n) = n x (n+1) divided by 2.',
+    ],
   };
 }
 
@@ -207,7 +251,7 @@ export function generateSequence(
   const boundedDifficulty = Math.min(3, Math.max(1, Math.floor(difficulty)));
   const random = createSeededRandom(`${seed}-${boundedDifficulty}`);
 
-  const { sequence, rule, hint } =
+  const { sequence, rule, hint, hints } =
     boundedDifficulty === 1
       ? generateDifficultyOne(random)
       : boundedDifficulty === 2
@@ -223,6 +267,7 @@ export function generateSequence(
     rule,
     difficulty: boundedDifficulty,
     hint,
+    hints,
   };
 }
 

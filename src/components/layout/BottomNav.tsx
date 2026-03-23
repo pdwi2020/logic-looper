@@ -26,6 +26,14 @@ const PlayIcon = () => (
   </svg>
 );
 
+const ArchiveIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+    <rect x="2" y="3" width="20" height="4" rx="1" />
+    <path d="M4 7v13a1 1 0 001 1h14a1 1 0 001-1V7" />
+    <path d="M10 12h4" />
+  </svg>
+);
+
 const ProfileIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
     <circle cx="12" cy="8" r="4" />
@@ -44,6 +52,7 @@ const LeaderboardIcon = () => (
 const navItems: NavItem[] = [
   { label: 'Home', to: '/', icon: <HomeIcon /> },
   { label: 'Play', to: '/puzzle', icon: <PlayIcon /> },
+  { label: 'Archive', to: '/archive', icon: <ArchiveIcon /> },
   { label: 'Profile', to: '/profile', icon: <ProfileIcon /> },
   { label: 'Ranks', to: '/leaderboard', icon: <LeaderboardIcon /> },
 ];
