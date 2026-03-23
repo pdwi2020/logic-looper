@@ -271,20 +271,6 @@ export function PuzzleContainer() {
     [handleSubmit],
   );
 
-  const handleShareScore = useCallback(() => {
-    const text = sharePreviewText;
-    if (navigator.share) {
-      void navigator.share({ text }).catch(() => {
-        // user cancelled or not supported — silent fail
-      });
-    } else if (navigator.clipboard) {
-      void navigator.clipboard.writeText(text).then(() => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      });
-    }
-  }, [sharePreviewText]);
-
   // Resolve the hint text for the current hint level
   const currentHintText = useMemo(() => {
     if (!showHint) return '';
@@ -324,6 +310,21 @@ export function PuzzleContainer() {
       }),
     [wrongCount, isGivenUp, hintLevel, score, timeTaken, puzzle.difficulty, type],
   );
+
+  const handleShareScore = useCallback(() => {
+    const text = sharePreviewText;
+    const canNativeShare = typeof navigator.share === 'function';
+    if (canNativeShare) {
+      void navigator.share({ text }).catch(() => {
+        // user cancelled or not supported — silent fail
+      });
+    } else if (navigator.clipboard) {
+      void navigator.clipboard.writeText(text).then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      });
+    }
+  }, [sharePreviewText]);
 
   if (todayActivity === undefined) {
     return (
@@ -667,7 +668,7 @@ export function PuzzleContainer() {
                 size="sm"
                 onClick={handleShareScore}
               >
-                {copied ? 'Copied!' : navigator.share ? 'Share' : 'Copy'}
+                {copied ? 'Copied!' : typeof navigator.share === 'function' ? 'Share' : 'Copy'}
               </Button>
               <a
                 href={generateTweetUrl(sharePreviewText)}
